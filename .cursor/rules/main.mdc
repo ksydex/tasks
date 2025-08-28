@@ -1,0 +1,39 @@
+---
+description: Main rule
+globs:
+alwaysApply: true
+---
+
+# Project Structure Documentation Rule
+
+## STRUCTURE.md Maintenance
+The `STRUCTURE.md` file serves as the authoritative documentation for the project's architecture and should be updated whenever significant changes are made to the codebase.
+
+### When to Update STRUCTURE.md
+- **New Components**: When adding new React components, update the file structure section
+- **New Features**: Document any new features in the "Key Features" section
+- **Data Model Changes**: Update the "Data Storage" section when modifying the Zustand store structure
+- **External Dependencies**: Add new packages to the "SDK & External Services" section
+- **Critical Implementation Details**: Document important implementation notes in "Critical Notes"
+
+### How to Update STRUCTURE.md
+1. **File Structure**: Keep the directory tree accurate and up-to-date
+2. **Feature Descriptions**: Use bullet points for clarity and consistency
+3. **Technical Details**: Include implementation specifics that affect development
+4. **Dependencies**: List all external packages and their purposes
+5. **Critical Notes**: Document important behaviors, edge cases, and implementation decisions
+
+### Format Guidelines
+- Use clear, descriptive language
+- Maintain consistent formatting with existing sections
+- Include specific file paths when referencing components
+- Document both what features do and how they're implemented
+- Keep the "Critical Notes" section focused on development-relevant information
+
+### Example Updates
+When adding a new feature like "Task Priority":
+- Add to "Key Features" section
+- Update file structure if new components are created
+- Document any new store actions in "Data Storage"
+- Add implementation notes to "Critical Notes"
+
