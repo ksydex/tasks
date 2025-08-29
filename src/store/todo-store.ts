@@ -22,6 +22,7 @@ export interface Task {
   status: string
   tagIds: string[]
   storyPoints?: number
+  dueDate?: Date
   createdAt: Date
 }
 
@@ -29,20 +30,20 @@ interface TaskState {
   tasks: Task[]
   columns: Column[]
   tags: Tag[]
-  
+
   // Task operations
-  addTask: (title: string, description?: string, tagIds?: string[], storyPoints?: number) => void
+  addTask: (title: string, description?: string, tagIds?: string[], storyPoints?: number, dueDate?: Date) => void
   deleteTask: (id: string) => void
-  editTask: (id: string, updates: Partial<Pick<Task, 'title' | 'description' | 'tagIds' | 'storyPoints'>>) => void
+  editTask: (id: string, updates: Partial<Pick<Task, 'title' | 'description' | 'tagIds' | 'storyPoints' | 'dueDate'>>) => void
   moveTask: (id: string, status: string) => void
   reorderTasks: (sourceIndex: number, destIndex: number, status: string) => void
-  
+
   // Column operations
   addColumn: (title: string, icon: string, color: string) => void
   editColumn: (id: string, updates: Partial<Pick<Column, 'title' | 'icon' | 'color'>>) => void
   deleteColumn: (id: string) => void
   reorderColumns: (sourceIndex: number, destIndex: number) => void
-  
+
   // Tag operations
   addTag: (name: string, color: string, icon: string) => void
   editTag: (id: string, updates: Partial<Pick<Tag, 'name' | 'color' | 'icon'>>) => void
@@ -68,11 +69,11 @@ export const useTaskStore = create<TaskState>()(
       tasks: [],
       columns: defaultColumns,
       tags: defaultTags,
-      
+
       // Task operations
-      addTask: (title: string, description?: string, tagIds: string[] = [], storyPoints?: number) => {
+      addTask: (title: string, description?: string, tagIds: string[] = [], storyPoints?: number, dueDate?: Date) => {
         if (!title.trim()) return
-        
+
         const newTask: Task = {
           id: Date.now().toString(),
           title: title.trim(),
@@ -80,37 +81,39 @@ export const useTaskStore = create<TaskState>()(
           status: get().columns[0]?.id || 'todo',
           tagIds,
           storyPoints,
+          dueDate,
           createdAt: new Date(),
         }
-        
+
         set((state) => ({
           tasks: [newTask, ...state.tasks]
         }))
       },
-      
+
       deleteTask: (id: string) => {
         set((state) => ({
           tasks: state.tasks.filter((task) => task.id !== id)
         }))
       },
-      
-      editTask: (id: string, updates: Partial<Pick<Task, 'title' | 'description' | 'tagIds' | 'storyPoints'>>) => {
+
+      editTask: (id: string, updates: Partial<Pick<Task, 'title' | 'description' | 'tagIds' | 'storyPoints' | 'dueDate'>>) => {
         if (updates.title && !updates.title.trim()) return
-        
+
         set((state) => ({
           tasks: state.tasks.map((task) =>
-            task.id === id ? { 
-              ...task, 
+            task.id === id ? {
+              ...task,
               ...updates,
               title: updates.title?.trim() || task.title,
               description: updates.description?.trim() || task.description,
               tagIds: updates.tagIds !== undefined ? updates.tagIds : task.tagIds,
-              storyPoints: updates.storyPoints !== undefined ? updates.storyPoints : task.storyPoints
+              storyPoints: updates.storyPoints !== undefined ? updates.storyPoints : task.storyPoints,
+              dueDate: updates.dueDate !== undefined ? updates.dueDate : task.dueDate
             } : task
           )
         }))
       },
-      
+
       moveTask: (id: string, status: string) => {
         set((state) => ({
           tasks: state.tasks.map((task) =>
@@ -123,17 +126,17 @@ export const useTaskStore = create<TaskState>()(
         set((state) => {
           const columnTasks = state.tasks.filter((task) => task.status === status)
           const otherTasks = state.tasks.filter((task) => task.status !== status)
-          
+
           const reorderedTasks = Array.from(columnTasks)
           const [removed] = reorderedTasks.splice(sourceIndex, 1)
           reorderedTasks.splice(destIndex, 0, removed)
-          
+
           return {
             tasks: [...otherTasks, ...reorderedTasks]
           }
         })
       },
-      
+
       // Column operations
       addColumn: (title: string, icon: string, color: string) => {
         const newColumn: Column = {
@@ -142,12 +145,12 @@ export const useTaskStore = create<TaskState>()(
           icon,
           color,
         }
-        
+
         set((state) => ({
           columns: [...state.columns, newColumn]
         }))
       },
-      
+
       editColumn: (id: string, updates: Partial<Pick<Column, 'title' | 'icon' | 'color'>>) => {
         set((state) => ({
           columns: state.columns.map((column) =>
@@ -155,15 +158,15 @@ export const useTaskStore = create<TaskState>()(
           )
         }))
       },
-      
+
       deleteColumn: (id: string) => {
         set((state) => {
           const remainingColumns = state.columns.filter((col) => col.id !== id)
           const tasksToMove = state.tasks.filter((task) => task.status === id)
           const targetColumnId = remainingColumns[0]?.id
-          
+
           if (!targetColumnId) return state // Can't delete all columns
-          
+
           return {
             columns: remainingColumns,
             tasks: state.tasks.map((task) =>
@@ -172,19 +175,19 @@ export const useTaskStore = create<TaskState>()(
           }
         })
       },
-      
+
       reorderColumns: (sourceIndex: number, destIndex: number) => {
         set((state) => {
           const reorderedColumns = Array.from(state.columns)
           const [removed] = reorderedColumns.splice(sourceIndex, 1)
           reorderedColumns.splice(destIndex, 0, removed)
-          
+
           return {
             columns: reorderedColumns
           }
         })
       },
-      
+
       // Tag operations
       addTag: (name: string, color: string, icon: string) => {
         const newTag: Tag = {
@@ -193,12 +196,12 @@ export const useTaskStore = create<TaskState>()(
           color,
           icon,
         }
-        
+
         set((state) => ({
           tags: [...state.tags, newTag]
         }))
       },
-      
+
       editTag: (id: string, updates: Partial<Pick<Tag, 'name' | 'color' | 'icon'>>) => {
         set((state) => ({
           tags: state.tags.map((tag) =>
@@ -206,7 +209,7 @@ export const useTaskStore = create<TaskState>()(
           )
         }))
       },
-      
+
       deleteTag: (id: string) => {
         set((state) => ({
           tags: state.tags.filter((tag) => tag.id !== id),
@@ -227,23 +230,65 @@ export const useTaskStore = create<TaskState>()(
 export const useTasksByStatus = () => {
   const tasks = useTaskStore((state) => state.tasks)
   const columns = useTaskStore((state) => state.columns)
-  
+
   const tasksByStatus: Record<string, Task[]> = {}
   columns.forEach((column) => {
     tasksByStatus[column.id] = tasks.filter((task) => task.status === column.id)
   })
-  
+
   return tasksByStatus
 }
 
 export const useTaskStats = () => {
   const tasks = useTaskStore((state) => state.tasks)
   const columns = useTaskStore((state) => state.columns)
-  
+
   const stats: Record<string, number> = { total: tasks.length }
   columns.forEach((column) => {
     stats[column.id] = tasks.filter((task) => task.status === column.id).length
   })
-  
+
   return stats
+}
+
+// Utility functions for date handling
+export const isOverdue = (dueDate: Date): boolean => {
+  return new Date(dueDate) < new Date()
+}
+
+export const isDueToday = (dueDate: Date): boolean => {
+  const today = new Date()
+  const due = new Date(dueDate)
+  return due.toDateString() === today.toDateString()
+}
+
+export const isDueSoon = (dueDate: Date, days: number = 3): boolean => {
+  const today = new Date()
+  const due = new Date(dueDate)
+  const diffTime = due.getTime() - today.getTime()
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  return diffDays >= 0 && diffDays <= days
+}
+
+export const formatDueDate = (dueDate: Date): string => {
+  const today = new Date()
+  const due = new Date(dueDate)
+  const diffTime = due.getTime() - today.getTime()
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+  if (diffDays < 0) {
+    return `${Math.abs(diffDays)} day${Math.abs(diffDays) === 1 ? '' : 's'} overdue`
+  } else if (diffDays === 0) {
+    return 'Due today'
+  } else if (diffDays === 1) {
+    return 'Due tomorrow'
+  } else if (diffDays <= 7) {
+    return `Due in ${diffDays} days`
+  } else {
+    return due.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: due.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
+    })
+  }
 }

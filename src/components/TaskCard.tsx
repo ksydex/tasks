@@ -1,8 +1,8 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Clock } from 'lucide-react'
+import { Clock, AlertTriangle } from 'lucide-react'
 import { Draggable } from '@hello-pangea/dnd'
-import { useTaskStore } from '@/store/todo-store'
+import { useTaskStore, isOverdue, isDueToday, isDueSoon, formatDueDate } from '@/store/todo-store'
 import { DetailedTaskForm } from './DetailedTaskForm'
 import { TaskContextMenu } from './TaskContextMenu'
 import type { Task } from '@/store/todo-store'
@@ -14,9 +14,9 @@ interface TaskCardProps {
 
 export function TaskCard({ task, index }: TaskCardProps) {
   const { tags } = useTaskStore()
-  
+
   const taskTags = tags.filter(tag => task.tagIds?.includes(tag.id))
-  
+
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',
@@ -24,20 +24,51 @@ export function TaskCard({ task, index }: TaskCardProps) {
       year: new Date(date).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
     })
   }
-  
+
+  const getDueDateDisplay = () => {
+    if (!task.dueDate) return null
+
+    const isTaskOverdue = isOverdue(task.dueDate)
+    const isTaskDueToday = isDueToday(task.dueDate)
+    const isTaskDueSoon = isDueSoon(task.dueDate)
+
+    let icon = <Clock className="h-3 w-3" />
+    let textColor = 'text-muted-foreground'
+    let bgColor = ''
+
+    if (isTaskOverdue) {
+      icon = <AlertTriangle className="h-3 w-3" />
+      textColor = 'text-red-500'
+      bgColor = 'bg-red-50 dark:bg-red-950/20'
+    } else if (isTaskDueToday) {
+      textColor = 'text-orange-500'
+      bgColor = 'bg-orange-50 dark:bg-orange-950/20'
+    } else if (isTaskDueSoon) {
+      textColor = 'text-yellow-500'
+      bgColor = 'bg-yellow-50 dark:bg-yellow-950/20'
+    }
+
+    return {
+      icon,
+      text: formatDueDate(task.dueDate),
+      textColor,
+      bgColor
+    }
+  }
+
   return (
     <Draggable draggableId={task.id} index={index}>
       {(provided, snapshot) => (
-        <div
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          className={`${snapshot.isDragging ? 'rotate-2 scale-105' : ''} transition-transform`}
-        >
-          <TaskContextMenu taskId={task.id}>
+        <TaskContextMenu taskId={task.id}>
+          <div
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            className={`${snapshot.isDragging ? 'rotate-2 scale-105' : ''} transition-transform`}
+          >
             <DetailedTaskForm
               task={task}
               trigger={
-                <Card 
+                <Card
                   className="group hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-[1.02]"
                   {...provided.dragHandleProps}
                 >
@@ -60,7 +91,7 @@ export function TaskCard({ task, index }: TaskCardProps) {
                           </Badge>
                         )}
                       </div>
-                      
+
                       {taskTags.length > 0 && (
                         <div className="flex flex-wrap gap-1">
                           {taskTags.map((tag) => (
@@ -68,7 +99,7 @@ export function TaskCard({ task, index }: TaskCardProps) {
                               key={tag.id}
                               variant="secondary"
                               className="gap-1 text-xs px-2 py-0"
-                              style={{ 
+                              style={{
                                 backgroundColor: tag.color + '20',
                                 color: tag.color,
                                 borderColor: tag.color + '40'
@@ -80,18 +111,29 @@ export function TaskCard({ task, index }: TaskCardProps) {
                           ))}
                         </div>
                       )}
-                      
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        <span>{formatDate(task.createdAt)}</span>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          <span>{formatDate(task.createdAt)}</span>
+                        </div>
+
+                        {task.dueDate && (
+                          <div className={`flex items-center gap-1 text-xs px-2 py-1 rounded ${getDueDateDisplay()?.bgColor || ''}`}>
+                            {getDueDateDisplay()?.icon}
+                            <span className={getDueDateDisplay()?.textColor || 'text-muted-foreground'}>
+                              {getDueDateDisplay()?.text}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               }
             />
-          </TaskContextMenu>
-        </div>
+          </div>
+        </TaskContextMenu>
       )}
     </Draggable>
   )

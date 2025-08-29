@@ -26,7 +26,7 @@ export function MultiSelect({
   onChange,
   placeholder = "Select items...",
   searchPlaceholder = "Search...",
-  emptyText = "No results found.",
+  emptyText = "No results found...",
   className,
 }: MultiSelectProps) {
   const [open, setOpen] = React.useState(false)
@@ -61,11 +61,11 @@ export function MultiSelect({
           <div className="flex gap-1 flex-wrap">
             {selectedItems.map((item) => {
               return (
-                <Badge 
-                  key={item.value} 
-                  variant="secondary" 
+                <Badge
+                  key={item.value}
+                  variant="secondary"
                   className="gap-1 text-xs"
-                  style={item.color ? { 
+                  style={item.color ? {
                     backgroundColor: item.color + '20',
                     color: item.color,
                     borderColor: item.color + '40'

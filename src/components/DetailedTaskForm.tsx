@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { MultiSelect } from '@/components/ui/multi-select'
-import { CalendarDays, Trash2, FileText } from 'lucide-react'
+import { CalendarDays, Trash2, FileText, Calendar } from 'lucide-react'
 import { useTaskStore } from '@/store/todo-store'
 import { TaskContextMenu } from './TaskContextMenu'
 import type { Task } from '@/store/todo-store'
@@ -33,61 +33,69 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
   const [description, setDescription] = useState('')
   const [storyPoints, setStoryPoints] = useState<number | undefined>()
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
-  
+  const [dueDate, setDueDate] = useState<string>('')
+
   const { addTask, editTask, tags } = useTaskStore()
-  
+
   const isEditing = !!task
-  
+
   useEffect(() => {
     if (task && open) {
       setTitle(task.title)
       setDescription(task.description || '')
       setStoryPoints(task.storyPoints)
       setSelectedTagIds(task.tagIds || [])
+      setDueDate(task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '')
     } else if (open && initialTitle) {
       setTitle(initialTitle)
       setDescription('')
       setStoryPoints(undefined)
       setSelectedTagIds([])
+      setDueDate('')
     } else if (!open) {
       setTitle('')
       setDescription('')
       setStoryPoints(undefined)
       setSelectedTagIds([])
+      setDueDate('')
     }
   }, [task, open, initialTitle])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!title.trim()) return
-    
+
+    const dueDateObj = dueDate ? new Date(dueDate) : undefined
+
     if (isEditing && task) {
-      editTask(task.id, { 
-        title, 
+      editTask(task.id, {
+        title,
         description: description || undefined,
         tagIds: selectedTagIds,
-        storyPoints
+        storyPoints,
+        dueDate: dueDateObj
       })
     } else {
-      addTask(title, description || undefined, selectedTagIds, storyPoints)
+      addTask(title, description || undefined, selectedTagIds, storyPoints, dueDateObj)
     }
-    
+
     setTitle('')
     setDescription('')
     setStoryPoints(undefined)
     setSelectedTagIds([])
+    setDueDate('')
     setOpen(false)
   }
-  
 
-  
+
+
   const tagOptions = tags.map(tag => ({
     label: tag.name,
     value: tag.id,
     icon: tag.icon || undefined,
     color: tag.color
   }))
-  
+
   const defaultTrigger = (
     <Button variant="outline" size="sm">
       <FileText className="h-4 w-4 mr-2" />
@@ -101,23 +109,21 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
         {trigger || defaultTrigger}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle>
-              {isEditing ? 'Edit Task' : 'Create New Task'}
-            </DialogTitle>
-            {isEditing && task && (
-              <div className="flex items-center">
-                <TaskContextMenu 
-                  taskId={task.id} 
-                  variant="dropdown"
-                  onDelete={() => setOpen(false)}
-                />
-              </div>
-            )}
+        {isEditing && task && (
+          <div className="absolute right-12 top-2">
+            <TaskContextMenu
+              taskId={task.id}
+              variant="dropdown"
+              onDelete={() => setOpen(false)}
+            />
           </div>
+        )}
+        <DialogHeader>
+          <DialogTitle>
+            {isEditing ? 'Edit Task' : 'Create New Task'}
+          </DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="title">Task Title</Label>
@@ -129,7 +135,7 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
               required
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
             <Textarea
@@ -140,7 +146,7 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
               rows={4}
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="storyPoints">Story Points</Label>
             <Input
@@ -153,7 +159,25 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
               placeholder="Estimate effort (optional)"
             />
           </div>
-          
+
+          <div className="space-y-2">
+            <Label htmlFor="dueDate">Due Date</Label>
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="dueDate"
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="pl-10"
+                min={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Optional. Set a deadline for this task.
+            </p>
+          </div>
+
           <div className="space-y-2">
             <Label>Tags</Label>
             <MultiSelect
@@ -165,7 +189,7 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
               emptyText="No tags found."
             />
           </div>
-          
+
           {isEditing && task && (
             <>
               <Separator />
@@ -175,7 +199,7 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
               </div>
             </>
           )}
-          
+
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { DragDropContext, DropResult } from '@hello-pangea/dnd'
-import { AddTaskForm } from '@/components/AddTaskForm'
+import { PowerfulInput } from '@/components/PowerfulInput'
 import { DetailedTaskForm } from '@/components/DetailedTaskForm'
 import { KanbanColumn } from '@/components/KanbanColumn'
 import { TaskStats } from '@/components/TaskStats'
@@ -81,7 +81,7 @@ function HomePage() {
                 <p className="text-sm text-muted-foreground">{getGreeting()}! Organize your workflow efficiently.</p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2">
               <TaskStats />
               <SettingsDialog />
@@ -95,12 +95,10 @@ function HomePage() {
               </Button>
             </div>
           </div>
-          
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-            <AddTaskForm onOpenDetailed={handleOpenDetailed} />
-          </div>
-          
-          <DetailedTaskForm 
+
+          {/* PowerfulInput is now positioned at bottom-left of screen */}
+
+          <DetailedTaskForm
             initialTitle={initialTitle}
             open={detailedFormOpen}
             onOpenChange={handleDetailedFormClose}
@@ -121,8 +119,11 @@ function HomePage() {
           </div>
         </DragDropContext>
       </div>
+
+      {/* Powerful Command Input */}
+      <PowerfulInput onOpenDetailed={handleOpenDetailed} />
     </div>
   )
 }
 
-export default HomePage 
+export default HomePage
