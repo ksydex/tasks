@@ -9,13 +9,11 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
 import { Search, Plus, FileText, HelpCircle, ChevronDown, ArrowRight, Check, Phone } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { createCommandHandlers, type CommandHandler } from '@/lib/commands'
+import { createCommands, type BaseCommand } from '@/commands'
 
 // Command state interface
 interface CommandState {
-  selectedCommand: CommandHandler | null
-  args: Record<string, string>
-  focusedArgIndex: number
+  selectedCommand: BaseCommand | null
 }
 
 interface PowerfulInputProps {
@@ -27,39 +25,20 @@ export function PowerfulInput({ onOpenDetailed }: PowerfulInputProps) {
   const [commandPopoverOpen, setCommandPopoverOpen] = useState(false)
   const [commandsModalOpen, setCommandsModalOpen] = useState(false)
   const [commandState, setCommandState] = useState<CommandState>({
-    selectedCommand: null,
-    args: {},
-    focusedArgIndex: 0
+    selectedCommand: null
   })
 
   const { toast } = useToast()
 
-  const argsInputRef = useRef<HTMLInputElement>(null)
-
-    // Calculate optimal widths for argument inputs based on placeholder text
-  const getArgumentWidths = (command: CommandHandler) => {
-    const baseWidth = 120 // minimum width
-    const charWidth = 7 // approximate character width in pixels
-    const availableWidth = 400 // available space for arguments (container 800px - command 200px - actions 120px - gaps)
-
-    const calculatedWidths = command.arguments.map(arg => {
-      const placeholderLength = arg.placeholder.length
-      const calculatedWidth = Math.max(baseWidth, placeholderLength * charWidth + 24) // 24px for padding
-      return Math.min(calculatedWidth, 180) // max width per input
-    })
-
-    // If total width exceeds available space, scale down proportionally
-    const totalWidth = calculatedWidths.reduce((sum, width) => sum + width, 0)
-    if (totalWidth > availableWidth) {
-      const scale = availableWidth / totalWidth
-      return calculatedWidths.map(width => Math.max(baseWidth, width * scale))
-    }
-
-    return calculatedWidths
-  }
-
   // Command handlers - easily extensible
-  const commandHandlers = createCommandHandlers(onOpenDetailed)
+  const commands = createCommands({
+    onOpenDetailed,
+    onClose: () => {
+      setIsOpen(false)
+      setCommandPopoverOpen(false)
+      setCommandState({ selectedCommand: null })
+    }
+  })
 
       // Handle keyboard shortcuts
   useEffect(() => {
@@ -70,9 +49,7 @@ export function PowerfulInput({ onOpenDetailed }: PowerfulInputProps) {
         setCommandPopoverOpen(true)
         // Reset state when opening
         setCommandState({
-          selectedCommand: null,
-          args: {},
-          focusedArgIndex: 0
+          selectedCommand: null
         })
       }
 
@@ -80,9 +57,7 @@ export function PowerfulInput({ onOpenDetailed }: PowerfulInputProps) {
         setIsOpen(false)
         setCommandPopoverOpen(false)
         setCommandState({
-          selectedCommand: null,
-          args: {},
-          focusedArgIndex: 0
+          selectedCommand: null
         })
       }
     }
@@ -91,111 +66,33 @@ export function PowerfulInput({ onOpenDetailed }: PowerfulInputProps) {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  // Focus management
-  useEffect(() => {
-    if (isOpen && commandState.selectedCommand && argsInputRef.current) {
-      argsInputRef.current.focus()
-    }
-  }, [isOpen, commandState.selectedCommand])
-
     // Handle command selection
-  const handleCommandSelect = (command: CommandHandler) => {
-    const initialArgs: Record<string, string> = {}
-    command.arguments.forEach(arg => {
-      initialArgs[arg.key] = ''
+  const handleCommandSelect = (command: BaseCommand) => {
+    setCommandState({
+      selectedCommand: command
     })
-
-    setCommandState(prev => ({
-      ...prev,
-      selectedCommand: command,
-      args: initialArgs,
-      focusedArgIndex: 0
-    }))
     setCommandPopoverOpen(false)
   }
 
-  // Handle args input change
-  const handleArgChange = (key: string, value: string) => {
-    setCommandState(prev => ({
-      ...prev,
-      args: { ...prev.args, [key]: value }
-    }))
-  }
-
   // Handle command execution
-  const handleCommandExecute = (action: string) => {
-    if (commandState.selectedCommand) {
-      commandState.selectedCommand.execute(action, commandState.args)
-      setIsOpen(false)
-      setCommandPopoverOpen(false)
-      // Reset state
-      setCommandState({
-        selectedCommand: null,
-        args: {},
-        focusedArgIndex: 0
-      })
-    }
+  const handleCommandExecute = (action: string, data?: any) => {
+    // Command components handle their own execution logic
+    console.log('Command executed:', action, data)
   }
 
-  // Render command actions based on command type
-  const renderCommandActions = (handler: CommandHandler) => {
-    const hasRequiredArgs = handler.arguments
-      .filter(arg => arg.required)
-      .every(arg => commandState.args[arg.key]?.trim())
-
-    switch (handler.id) {
-      case 'add-task':
-        return (
-          <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              onClick={() => handleCommandExecute('fast-create')}
-              disabled={!hasRequiredArgs}
-              className="h-8 px-3"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handleCommandExecute('detailed-create')}
-              className="h-8 px-3"
-            >
-              <FileText className="h-4 w-4 mr-1" />
-              Detailed
-            </Button>
-          </div>
-        )
-      case 'help':
-        return (
-          <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              onClick={() => setCommandsModalOpen(true)}
-              className="h-8 px-3"
-            >
-              <HelpCircle className="h-4 w-4 mr-1" />
-              Show Commands
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                toast({
-                  title: "Whoops!",
-                  description: "There's no support yet.",
-                })
-              }}
-              className="h-8 px-3"
-            >
-              <Phone className="h-4 w-4 mr-1" />
-              Contact Support
-            </Button>
-          </div>
-        )
-      default:
-        return null
-    }
+  // Render command component
+  const renderCommandComponent = (command: BaseCommand) => {
+    const CommandComponent = command.component
+    return (
+      <CommandComponent
+        onExecute={handleCommandExecute}
+        onClose={() => {
+          setIsOpen(false)
+          setCommandPopoverOpen(false)
+          setCommandState({ selectedCommand: null })
+        }}
+      />
+    )
   }
 
   return (
@@ -250,24 +147,24 @@ export function PowerfulInput({ onOpenDetailed }: PowerfulInputProps) {
                   <CommandEmpty>No command found.</CommandEmpty>
                   <CommandList>
                     <CommandGroup>
-                      {commandHandlers.map((command) => (
+                      {commands.map((command) => (
                         <CommandItem
-                          key={command.id}
-                          value={command.id}
+                          key={command.key}
+                          value={command.key}
                           onSelect={() => handleCommandSelect(command)}
                           className="flex items-center gap-2"
                         >
                           <command.icon className="h-4 w-4" />
                           <div className="flex flex-col">
                             <span className="font-medium">{command.name}</span>
-                            <span className="text-xs">
+                            <span className="text-xs data-[selected=true]:text-white/90">
                               {command.description}
                             </span>
                           </div>
                           <Check
                             className={cn(
                               "ml-auto h-4 w-4",
-                              commandState.selectedCommand?.id === command.id ? "opacity-100" : "opacity-0"
+                              commandState.selectedCommand?.key === command.key ? "opacity-100" : "opacity-0"
                             )}
                           />
                         </CommandItem>
@@ -279,38 +176,13 @@ export function PowerfulInput({ onOpenDetailed }: PowerfulInputProps) {
               </Popover>
             </div>
 
-            {/* Arguments Input Part - Always Present */}
+            {/* Command Component - Always Present */}
             <div className="flex items-center gap-2 flex-1 min-w-0">
               {commandState.selectedCommand ? (
                 <>
                   <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 animate-in slide-in-from-left-2 duration-200" />
-                  <div className="flex gap-2 animate-in slide-in-from-right-2 duration-300 min-w-0 flex-1">
-                    {commandState.selectedCommand.arguments.map((arg, index) => {
-                      const argWidths = getArgumentWidths(commandState.selectedCommand!)
-                      const width = argWidths[index]
-
-                      return (
-                        <div
-                          key={arg.key}
-                          className="transition-all duration-300 ease-out"
-                          style={{
-                            width: `${width}px`,
-                            minWidth: `${width}px`,
-                            maxWidth: `${width}px`
-                          }}
-                        >
-                          <Input
-                            ref={index === 0 ? argsInputRef : undefined}
-                            value={commandState.args[arg.key] || ''}
-                            onChange={(e) => handleArgChange(arg.key, e.target.value)}
-                            placeholder={arg.placeholder}
-                            type={arg.type}
-                            className="w-full h-9 transition-all duration-200"
-                          />
-                        </div>
-                      )
-                    })}
-
+                  <div className="animate-in slide-in-from-right-2 duration-300 min-w-0 flex-1">
+                    {renderCommandComponent(commandState.selectedCommand)}
                   </div>
                 </>
               ) : (
@@ -319,22 +191,10 @@ export function PowerfulInput({ onOpenDetailed }: PowerfulInputProps) {
                   <div className="flex gap-2 flex-1">
                     <Skeleton className="h-9 transition-all ease-out" style={{ width: '140px' }} />
                     <Skeleton className="h-9 transition-all ease-out" style={{ width: '100px' }} />
+                    <Skeleton className="h-8 w-8" />
+                    <Skeleton className="h-8 w-20" />
                   </div>
                 </>
-              )}
-            </div>
-
-            {/* Command Actions - Always Present */}
-            <div className="flex items-center gap-2 shrink-0">
-              {commandState.selectedCommand ? (
-                <div className="animate-in slide-in-from-right-2 duration-300">
-                  {renderCommandActions(commandState.selectedCommand)}
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Skeleton className="h-8 w-8" />
-                  <Skeleton className="h-8 w-20" />
-                </div>
               )}
             </div>
           </div>
@@ -381,35 +241,17 @@ export function PowerfulInput({ onOpenDetailed }: PowerfulInputProps) {
               Here are all the available commands you can use in the powerful input:
             </p>
             <div className="space-y-3">
-              {commandHandlers.map((command) => (
-                <div key={command.id} className="flex items-start gap-3 p-3 rounded-lg border border-border">
+              {commands.map((command) => (
+                <div key={command.key} className="flex items-start gap-3 p-3 rounded-lg border border-border">
                   <command.icon className="h-5 w-5 mt-0.5 text-muted-foreground" />
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2">
                       <h4 className="font-medium text-sm">{command.name}</h4>
                       <Badge variant="secondary" className="text-xs">
-                        /{command.id}
+                        /{command.key}
                       </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground">{command.description}</p>
-                    {command.arguments.length > 0 && (
-                      <div className="space-y-1">
-                        <p className="text-xs font-medium">Arguments:</p>
-                        <ul className="space-y-0.5">
-                          {command.arguments.map((arg) => (
-                            <li key={arg.key} className="text-xs text-muted-foreground flex items-center gap-2">
-                              <Badge variant="outline" className="text-[10px] px-1 py-0">
-                                {arg.type}
-                              </Badge>
-                              <span className={arg.required ? "font-medium" : ""}>
-                                {arg.label}
-                                {arg.required && <span className="text-red-500 ml-1">*</span>}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
                   </div>
                 </div>
               ))}
