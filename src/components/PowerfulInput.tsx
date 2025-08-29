@@ -4,8 +4,10 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Search, Plus, FileText, HelpCircle, ChevronDown, ArrowRight, Check } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
+import { Search, Plus, FileText, HelpCircle, ChevronDown, ArrowRight, Check, Phone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createCommandHandlers, type CommandHandler } from '@/lib/commands'
 
@@ -23,11 +25,14 @@ interface PowerfulInputProps {
 export function PowerfulInput({ onOpenDetailed }: PowerfulInputProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [commandPopoverOpen, setCommandPopoverOpen] = useState(false)
+  const [commandsModalOpen, setCommandsModalOpen] = useState(false)
   const [commandState, setCommandState] = useState<CommandState>({
     selectedCommand: null,
     args: {},
     focusedArgIndex: 0
   })
+
+  const { toast } = useToast()
 
   const argsInputRef = useRef<HTMLInputElement>(null)
 
@@ -166,11 +171,25 @@ export function PowerfulInput({ onOpenDetailed }: PowerfulInputProps) {
           <div className="flex items-center gap-2">
             <Button
               size="sm"
-              onClick={() => handleCommandExecute('show-help')}
+              onClick={() => setCommandsModalOpen(true)}
               className="h-8 px-3"
             >
               <HelpCircle className="h-4 w-4 mr-1" />
               Show Commands
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                toast({
+                  title: "Whoops!",
+                  description: "There's no support yet.",
+                })
+              }}
+              className="h-8 px-3"
+            >
+              <Phone className="h-4 w-4 mr-1" />
+              Contact Support
             </Button>
           </div>
         )
@@ -217,7 +236,7 @@ export function PowerfulInput({ onOpenDetailed }: PowerfulInputProps) {
                       <span className="truncate">{commandState.selectedCommand.name}</span>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2 text-muted-foreground">
+                    <div className="flex items-center gap-2">
                       <Search className="h-4 w-4" />
                       <span>Choose command...</span>
                     </div>
@@ -291,11 +310,7 @@ export function PowerfulInput({ onOpenDetailed }: PowerfulInputProps) {
                         </div>
                       )
                     })}
-                    {commandState.selectedCommand.arguments.length === 0 && (
-                      <div className="h-9 flex items-center justify-center text-muted-foreground text-sm animate-in fade-in duration-200 px-4">
-                        No arguments required
-                      </div>
-                    )}
+
                   </div>
                 </>
               ) : (
@@ -354,6 +369,57 @@ export function PowerfulInput({ onOpenDetailed }: PowerfulInputProps) {
           </Button>
         </div>
       )}
+
+      {/* Commands Modal */}
+      <Dialog open={commandsModalOpen} onOpenChange={setCommandsModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Available Commands</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Here are all the available commands you can use in the powerful input:
+            </p>
+            <div className="space-y-3">
+              {commandHandlers.map((command) => (
+                <div key={command.id} className="flex items-start gap-3 p-3 rounded-lg border border-border">
+                  <command.icon className="h-5 w-5 mt-0.5 text-muted-foreground" />
+                  <div className="flex-1 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium text-sm">{command.name}</h4>
+                      <Badge variant="secondary" className="text-xs">
+                        /{command.id}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{command.description}</p>
+                    {command.arguments.length > 0 && (
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium">Arguments:</p>
+                        <ul className="space-y-0.5">
+                          {command.arguments.map((arg) => (
+                            <li key={arg.key} className="text-xs text-muted-foreground flex items-center gap-2">
+                              <Badge variant="outline" className="text-[10px] px-1 py-0">
+                                {arg.type}
+                              </Badge>
+                              <span className={arg.required ? "font-medium" : ""}>
+                                {arg.label}
+                                {arg.required && <span className="text-red-500 ml-1">*</span>}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              <p>Tip: Press <kbd className="px-1 py-0.5 bg-muted rounded text-[10px]">Cmd+K</kbd> to open the command input.</p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
