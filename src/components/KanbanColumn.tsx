@@ -1,5 +1,6 @@
+import React, { memo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { ColumnBadge } from '@/components/ui/primitives'
 import { Droppable } from '@hello-pangea/dnd'
 import { TaskCard } from './TaskCard'
 import type { Task, Column } from '@/store/todo-store'
@@ -10,25 +11,22 @@ interface KanbanColumnProps {
   count: number
 }
 
-export function KanbanColumn({ column, tasks, count }: KanbanColumnProps) {
+const KanbanColumn = memo(({ column, tasks, count }: KanbanColumnProps) => {
   return (
-    <Card className="flex flex-col h-full border-t-4" style={{ borderTopColor: column.color }}>
+    <Card
+      className="flex flex-col h-full border-t-4 p-1"
+      style={{ borderTopColor: column.color }}
+    >
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between text-sm font-medium">
           <div className="flex items-center gap-2">
             {column.icon && <span className="text-lg">{column.icon}</span>}
             <span>{column.title}</span>
           </div>
-          <Badge 
-            variant="secondary" 
-            className="text-xs px-2 py-0.5"
-            style={{ backgroundColor: column.color + '20', color: column.color }}
-          >
-            {count}
-          </Badge>
+          <ColumnBadge color={column.color} count={count} />
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 pt-0">
+      <CardContent className="flex-1 pt-1">
         <Droppable droppableId={column.id}>
           {(provided, snapshot) => (
             <div
@@ -54,4 +52,8 @@ export function KanbanColumn({ column, tasks, count }: KanbanColumnProps) {
       </CardContent>
     </Card>
   )
-}
+})
+
+KanbanColumn.displayName = 'KanbanColumn'
+
+export { KanbanColumn }

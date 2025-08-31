@@ -16,6 +16,8 @@ export * from "./text"
 // Status components
 export * from "./status-indicator"
 export * from "./priority-badge"
+export * from "./tag"
+export * from "./column-badge"
 
 // Re-export for backward compatibility
 export { Button, type ButtonProps } from "./button"
@@ -24,3 +26,5 @@ export { Badge, type BadgeProps } from "./badge"
 export { Text, type TextProps } from "./text"
 export { StatusIndicator, type StatusIndicatorProps } from "./status-indicator"
 export { PriorityBadge, type PriorityBadgeProps } from "./priority-badge"
+export { Tag, type TagProps } from "./tag"
+export { ColumnBadge, type ColumnBadgeProps } from "./column-badge"
