@@ -191,8 +191,8 @@ export function PowerfulInput({ onOpenDetailed }: PowerfulInputProps) {
                   <div className="flex gap-2 flex-1">
                     <Skeleton className="h-9 transition-all ease-out" style={{ width: '140px' }} />
                     <Skeleton className="h-9 transition-all ease-out" style={{ width: '100px' }} />
-                    <Skeleton className="h-8 w-8" />
-                    <Skeleton className="h-8 w-20" />
+                    <Skeleton className="h-9 w-8" />
+                    <Skeleton className="h-9 w-20" />
                   </div>
                 </>
               )}
