@@ -12,15 +12,19 @@ export const createCommands = (context: CommandContext): BaseCommand[] => {
       name: 'Add Task',
       description: 'Create a new task quickly or with details',
       icon: Plus,
-      component: (props) => React.createElement(AddTaskCommand, {
-        ...props,
-        onExecute: (action, data) => {
-          if (action === 'detailed-create' && data?.taskName) {
-            context.onOpenDetailed?.(data.taskName)
+      component: (props) => {
+        const wrappedOnExecute = (action, data) => {
+          if (action === 'detailed-create') {
+            context.onOpenDetailed?.(data?.taskName || '')
           }
           props.onExecute(action, data)
         }
-      })
+
+        return React.createElement(AddTaskCommand, {
+          ...props,
+          onExecute: wrappedOnExecute
+        })
+      }
     },
     {
       key: 'help',
