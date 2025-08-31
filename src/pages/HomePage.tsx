@@ -7,7 +7,8 @@ import { TaskStats } from '@/components/TaskStats'
 import { SettingsDialog } from '@/components/SettingsDialog'
 import { useTaskStore, useTasksByStatus, useTaskStats } from '@/store/todo-store'
 import { Button } from '@/components/ui/button'
-import { Moon, Sun, Kanban } from 'lucide-react'
+import { Moon, Sun, Kanban, Palette } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 function HomePage() {
   const [isDark, setIsDark] = useState(false)
@@ -85,6 +86,15 @@ function HomePage() {
             <div className="flex items-center gap-2">
               <TaskStats />
               <SettingsDialog />
+              <Link to="/design-tokens">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  title="View Design Token System"
+                >
+                  <Palette className="w-4 h-4" />
+                </Button>
+              </Link>
               <Button
                 variant="ghost"
                 size="icon"
