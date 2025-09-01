@@ -23,11 +23,11 @@ interface TaskContextMenuProps {
   onDelete?: () => void;
 }
 
-export function TaskContextMenu({ 
-  taskId, 
-  children, 
+export function TaskContextMenu({
+  taskId,
+  children,
   variant = 'context',
-  onDelete 
+  onDelete
 }: TaskContextMenuProps) {
   const { deleteTask, tasks } = useTaskStore();
   const { toast } = useToast();
@@ -46,7 +46,7 @@ export function TaskContextMenu({
   };
 
   const menuItems = (
-    <DropdownMenuItem 
+    <DropdownMenuItem
       onClick={handleDelete}
       className="text-destructive focus:text-destructive focus:bg-destructive/10"
     >
@@ -81,7 +81,7 @@ export function TaskContextMenu({
         {children || <div className="w-full h-full" />}
       </ContextMenuTrigger>
       <ContextMenuContent>
-        <ContextMenuItem 
+        <ContextMenuItem
           onClick={handleDelete}
           className="text-destructive focus:text-destructive focus:bg-destructive/10"
         >

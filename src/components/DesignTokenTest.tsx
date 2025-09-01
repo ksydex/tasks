@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Text } from '@/components/ui/primitives'
 import { StatusIndicator, PriorityBadge, Tag } from '@/components/ui/primitives'
-import { Clock, AlertTriangle, Star, Moon, Sun, Home, Bold, Italic, Underline, ChevronDown } from 'lucide-react'
+import { Clock, AlertTriangle, Star, Moon, Sun, Home, Bold, Italic, Underline, ChevronDown, ArrowLeft, ArrowRight, RotateCcw, Trash2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 // Form Components
@@ -567,18 +567,51 @@ export function DesignTokenTest() {
 
           <div>
             <Text variant="h4" className="mb-2">Context Menu</Text>
-            <ContextMenu>
-              <ContextMenuTrigger className="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
-                Right click here
-              </ContextMenuTrigger>
-              <ContextMenuContent>
-                <ContextMenuItem>Back</ContextMenuItem>
-                <ContextMenuItem>Forward</ContextMenuItem>
-                <ContextMenuItem>Reload</ContextMenuItem>
-                <ContextMenuSeparator />
-                <ContextMenuItem>Inspect</ContextMenuItem>
-              </ContextMenuContent>
-            </ContextMenu>
+            <div className="space-y-4">
+              <div>
+                <Text variant="small" className="mb-2">Basic Context Menu</Text>
+                <ContextMenu>
+                  <ContextMenuTrigger className="flex h-[100px] w-[200px] items-center justify-center rounded-md border border-dashed text-sm">
+                    Right click here
+                  </ContextMenuTrigger>
+                  <ContextMenuContent>
+                    <ContextMenuItem>Back</ContextMenuItem>
+                    <ContextMenuItem>Forward</ContextMenuItem>
+                    <ContextMenuItem>Reload</ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem>Inspect</ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
+              </div>
+
+              <div>
+                <Text variant="small" className="mb-2">Context Menu with Icons</Text>
+                <ContextMenu>
+                  <ContextMenuTrigger className="flex h-[100px] w-[200px] items-center justify-center rounded-md border border-dashed text-sm">
+                    Right click here
+                  </ContextMenuTrigger>
+                  <ContextMenuContent>
+                    <ContextMenuItem>
+                      <ArrowLeft className="w-4 h-4 mr-2" />
+                      Back
+                    </ContextMenuItem>
+                    <ContextMenuItem>
+                      <ArrowRight className="w-4 h-4 mr-2" />
+                      Forward
+                    </ContextMenuItem>
+                    <ContextMenuItem>
+                      <RotateCcw className="w-4 h-4 mr-2" />
+                      Reload
+                    </ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete
+                    </ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
+              </div>
+            </div>
           </div>
 
           <div>

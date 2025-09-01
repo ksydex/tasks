@@ -12,7 +12,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { MultiSelect } from '@/components/ui/multi-select'
-import { CalendarDays, Trash2, FileText, Calendar } from 'lucide-react'
+import { Calendar } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { CalendarDays, Trash2, FileText, Calendar as CalendarIcon } from 'lucide-react'
 import { useTaskStore } from '@/store/todo-store'
 import { TaskContextMenu } from './TaskContextMenu'
 import type { Task } from '@/store/todo-store'
@@ -34,6 +36,7 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
   const [storyPoints, setStoryPoints] = useState<number | undefined>()
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
   const [dueDate, setDueDate] = useState<string>('')
+  const [calendarOpen, setCalendarOpen] = useState(false)
 
   const { addTask, editTask, tags } = useTaskStore()
 
@@ -162,17 +165,29 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
 
           <div className="space-y-2">
             <Label htmlFor="dueDate">Due Date</Label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="dueDate"
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="pl-10"
-                min={new Date().toISOString().split('T')[0]}
-              />
-            </div>
+            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal"
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dueDate ? new Date(dueDate).toLocaleDateString() : "Pick a date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={dueDate ? new Date(dueDate) : undefined}
+                  onSelect={(date) => {
+                    setDueDate(date ? date.toISOString().split('T')[0] : '')
+                    setCalendarOpen(false)
+                  }}
+                  disabled={(date) => date < new Date()}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
             <p className="text-xs text-muted-foreground">
               Optional. Set a deadline for this task.
             </p>
