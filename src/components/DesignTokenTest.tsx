@@ -325,6 +325,17 @@ export function DesignTokenTest() {
                 <DueStatus dueDate={new Date(Date.now() + 259200000)} priority="urgent" showPriority />
               </div>
 
+              <Text variant="small" className="mb-2 mt-4">Relative time examples (hover for actual date):</Text>
+              <div className="flex gap-2 flex-wrap">
+                <DueStatus dueDate={new Date(Date.now() - 172800000)} /> {/* 2 days overdue */}
+                <DueStatus dueDate={new Date(Date.now() - 86400000)} /> {/* 1 day overdue */}
+                <DueStatus dueDate={new Date()} /> {/* Due today */}
+                <DueStatus dueDate={new Date(Date.now() + 86400000)} /> {/* Due tomorrow */}
+                <DueStatus dueDate={new Date(Date.now() + 172800000)} /> {/* Due in 2 days */}
+                <DueStatus dueDate={new Date(Date.now() + 259200000)} /> {/* Due in 3 days */}
+                <DueStatus dueDate={new Date(Date.now() + 345600000)} /> {/* Due in 4 days - shows date */}
+              </div>
+
               <Text variant="small" className="mb-2 mt-4">Size variants:</Text>
               <div className="flex gap-2 flex-wrap items-center">
                 <DueStatus dueDate={new Date()} size="sm" />

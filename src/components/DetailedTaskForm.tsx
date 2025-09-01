@@ -14,7 +14,7 @@ import {
 import { MultiSelect } from '@/components/ui/multi-select'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { CalendarDays, Trash2, FileText, Calendar as CalendarIcon } from 'lucide-react'
+import { CalendarDays, Trash2, FileText, Calendar as CalendarIcon, Clock } from 'lucide-react'
 import { useTaskStore } from '@/store/todo-store'
 import { TaskContextMenu } from './TaskContextMenu'
 import type { Task } from '@/store/todo-store'
@@ -171,7 +171,7 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
                   variant="outline"
                   className="w-full justify-start text-left font-normal"
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  <Clock className="mr-2 h-4 w-4" />
                   {dueDate ? new Date(dueDate).toLocaleDateString() : "Pick a date"}
                 </Button>
               </PopoverTrigger>

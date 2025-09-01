@@ -14,26 +14,26 @@ interface KanbanColumnProps {
 const KanbanColumn = memo(({ column, tasks, count }: KanbanColumnProps) => {
   return (
     <Card
-      className="flex flex-col h-full border-t-4 p-1"
+      className="flex flex-col h-full border-t-4"
       style={{ borderTopColor: column.color }}
     >
-      <CardHeader className="pb-3">
+      <CardHeader className="mb-3">
         <CardTitle className="flex items-center justify-between text-sm font-medium">
-          <div className="flex items-center gap-2">
-            {column.icon && <span className="text-lg">{column.icon}</span>}
+          <div className="flex items-center gap-2 text-lg">
+            {column.icon && <span>{column.icon}</span>}
             <span>{column.title}</span>
           </div>
           <ColumnBadge color={column.color} count={count} />
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 pt-1">
+      <CardContent className="flex-1">
         <Droppable droppableId={column.id}>
           {(provided, snapshot) => (
             <div
               ref={provided.innerRef}
               {...provided.droppableProps}
               className={`space-y-3 min-h-[200px] transition-colors ${
-                snapshot.isDraggingOver ? 'bg-muted/50 rounded-lg p-2' : ''
+                snapshot.isDraggingOver ? 'bg-muted/50 rounded-lg' : ''
               }`}
             >
               {tasks.length === 0 ? (

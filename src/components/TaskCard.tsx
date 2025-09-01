@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tag } from '@/components/ui/primitives'
 import { DueStatus } from '@/components/ui/composites'
-import { Clock } from 'lucide-react'
+import { Clock, Calendar } from 'lucide-react'
 import { Draggable } from '@hello-pangea/dnd'
 import { useTaskStore } from '@/store/todo-store'
 import { DetailedTaskForm } from './DetailedTaskForm'
@@ -47,10 +47,11 @@ const TaskCard = memo(({ task, index }: TaskCardProps) => {
               trigger={
                 <Card
                   hover="lift"
+                  padding="sm"
                   className="group cursor-pointer"
                   {...provided.dragHandleProps}
                 >
-                  <CardContent className="p-0">
+                  <CardContent>
                     <div className="space-y-3">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
@@ -86,7 +87,7 @@ const TaskCard = memo(({ task, index }: TaskCardProps) => {
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3" />
+                          <Calendar className="h-3 w-3" />
                           <span>{formatDate(task.createdAt)}</span>
                         </div>
 
