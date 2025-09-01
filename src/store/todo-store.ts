@@ -36,6 +36,7 @@ interface TaskState {
   deleteTask: (id: string) => void
   editTask: (id: string, updates: Partial<Pick<Task, 'title' | 'description' | 'tagIds' | 'storyPoints' | 'dueDate'>>) => void
   moveTask: (id: string, status: string) => void
+  moveTaskToPosition: (taskId: string, sourceColumnId: string, destColumnId: string, sourceIndex: number, destIndex: number) => void
   reorderTasks: (sourceIndex: number, destIndex: number, status: string) => void
 
   // Column operations
@@ -120,6 +121,61 @@ export const useTaskStore = create<TaskState>()(
             task.id === id ? { ...task, status } : task
           )
         }))
+      },
+
+      moveTaskToPosition: (taskId: string, sourceColumnId: string, destColumnId: string, sourceIndex: number, destIndex: number) => {
+        set((state) => {
+          // Find the task being moved
+          const taskToMove = state.tasks.find(task => task.id === taskId)
+          if (!taskToMove) return state
+
+          // If same column, use existing reorderTasks logic
+          if (sourceColumnId === destColumnId) {
+            const columnTasks = state.tasks.filter((task) => task.status === sourceColumnId)
+            const otherTasks = state.tasks.filter((task) => task.status !== sourceColumnId)
+
+            const reorderedTasks = Array.from(columnTasks)
+            const [removed] = reorderedTasks.splice(sourceIndex, 1)
+            reorderedTasks.splice(destIndex, 0, removed)
+
+            return {
+              tasks: [...otherTasks, ...reorderedTasks]
+            }
+          }
+
+          // Cross-column move: remove from source, add to destination at correct position
+          const allTasks = [...state.tasks]
+
+          // Remove the task from the array
+          const taskIndex = allTasks.findIndex(task => task.id === taskId)
+          allTasks.splice(taskIndex, 1)
+
+          // Get destination column tasks after removal
+          const destTasks = allTasks.filter(task => task.status === destColumnId)
+
+          // Find where to insert in the full array
+          let insertIndex
+          if (destTasks.length === 0 || destIndex === 0) {
+            // Insert at beginning of destination column
+            insertIndex = allTasks.findIndex(task => task.status === destColumnId)
+            if (insertIndex === -1) insertIndex = allTasks.length
+          } else if (destIndex >= destTasks.length) {
+            // Insert at end of destination column
+            const lastDestTaskIndex = allTasks.map((task, idx) => ({ task, idx }))
+              .filter(({ task }) => task.status === destColumnId)
+              .pop()?.idx
+            insertIndex = lastDestTaskIndex !== undefined ? lastDestTaskIndex + 1 : allTasks.length
+          } else {
+            // Insert at specific position
+            const targetTask = destTasks[destIndex]
+            insertIndex = allTasks.findIndex(task => task.id === targetTask.id)
+          }
+
+          // Insert the task with updated status
+          allTasks.splice(insertIndex, 0, { ...taskToMove, status: destColumnId })
+
+          return { tasks: allTasks }
+        })
       },
 
       reorderTasks: (sourceIndex: number, destIndex: number, status: string) => {

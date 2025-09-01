@@ -14,7 +14,7 @@ function HomePage() {
   const [isDark, setIsDark] = useState(false)
   const [detailedFormOpen, setDetailedFormOpen] = useState(false)
   const [initialTitle, setInitialTitle] = useState('')
-  const { columns, moveTask, reorderTasks } = useTaskStore()
+  const { columns, moveTask, moveTaskToPosition, reorderTasks } = useTaskStore()
   const tasksByStatus = useTasksByStatus()
   const stats = useTaskStats()
 
@@ -59,13 +59,14 @@ function HomePage() {
       return
     }
 
-    // Moving to different column
-    if (destination.droppableId !== source.droppableId) {
-      moveTask(result.draggableId, destination.droppableId)
-    } else {
-      // Reordering within the same column
-      reorderTasks(source.index, destination.index, source.droppableId)
-    }
+    // Use the new moveTaskToPosition for both cross-column and same-column moves
+    moveTaskToPosition(
+      result.draggableId,
+      source.droppableId,
+      destination.droppableId,
+      source.index,
+      destination.index
+    )
   }
 
   return (
