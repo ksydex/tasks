@@ -7,13 +7,14 @@
  * This provides consistent styling patterns across all UI components
  */
 
-import { cva } from "class-variance-authority";
+import { cva } from "class-variance-authority"
+import { componentBorderRadius } from "./style-utils";
 
 /**
  * Button variants - exported for reuse across button-like components
  */
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  `inline-flex items-center justify-center gap-2 whitespace-nowrap ${componentBorderRadius.interactive} text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0`,
   {
     variants: {
       variant: {
@@ -42,7 +43,7 @@ export const buttonVariants = cva(
  * Card variants - for consistent card styling
  */
 export const cardVariants = cva(
-  "rounded-lg border bg-card text-card-foreground shadow-sm",
+  `${componentBorderRadius.container} border bg-card text-card-foreground shadow-sm`,
   {
     variants: {
       padding: {
@@ -68,7 +69,7 @@ export const cardVariants = cva(
  * Badge variants - for status indicators and labels
  */
 export const badgeVariants = cva(
-  "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  `inline-flex items-center ${componentBorderRadius.status} border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2`,
   {
     variants: {
       variant: {
@@ -90,7 +91,7 @@ export const badgeVariants = cva(
  * Input variants - for form controls
  */
 export const inputVariants = cva(
-  "flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+  `flex w-full ${componentBorderRadius.interactive} border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50`,
   {
     variants: {
       size: {

@@ -211,3 +211,44 @@ export const getToken = (path: string, fallback: string = '') => {
     return fallback;
   }
 };
+
+/**
+ * =====================================
+ *         STYLE UTILITIES
+ * =====================================
+ *
+ * Utility functions for consistent styling
+ * Provides design token integration and common patterns
+ */
+
+/**
+ * Border radius utilities using design tokens
+ */
+export const borderRadius = {
+  none: 'rounded-none',
+  sm: 'rounded-sm',
+  md: 'rounded-md',
+  lg: 'rounded-lg',
+  xl: 'rounded-xl',
+  full: 'rounded-full'
+} as const
+
+/**
+ * Common component border radius patterns
+ */
+export const componentBorderRadius = {
+  // Small interactive elements (buttons, inputs)
+  interactive: borderRadius.md,
+
+  // Status indicators and badges
+  status: borderRadius.md,
+
+  // Cards and containers
+  container: borderRadius.lg,
+
+  // Large elements (modals, sheets)
+  large: borderRadius.xl,
+
+  // Circular elements (avatars, icons)
+  circular: borderRadius.full
+} as const

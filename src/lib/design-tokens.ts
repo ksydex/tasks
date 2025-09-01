@@ -101,10 +101,10 @@ export const designTokens = {
    */
   borderRadius: {
     none: '0',
-    sm: 'calc(var(--radius) - 4px)',
-    md: 'calc(var(--radius) - 2px)',
-    lg: 'var(--radius)',
-    xl: 'calc(var(--radius) + 4px)',
+    sm: 'calc(var(--radius) - 4px)',    // 4px
+    md: 'calc(var(--radius) - 2px)',     // 6px
+    lg: 'var(--radius)',                 // 12px
+    xl: 'calc(var(--radius) + 4px)',    // 16px
     full: '9999px'
   },
 

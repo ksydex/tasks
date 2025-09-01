@@ -14,6 +14,9 @@ export * from "./card"
 export * from "./dialog"
 export * from "./form"
 
+// Status components
+export * from "./due-status"
+
 // Re-export for backward compatibility
 export {
   Card,
@@ -24,3 +27,5 @@ export {
   CardContent,
   type CardProps
 } from "./card"
+
+export { DueStatus, type DueStatusProps } from "./due-status"

@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Text } from '@/components/ui/primitives'
 import { StatusIndicator, PriorityBadge, Tag } from '@/components/ui/primitives'
+import { DueStatus } from '@/components/ui/composites'
 import { Clock, AlertTriangle, Star, Moon, Sun, Home, Bold, Italic, Underline, ChevronDown, ArrowLeft, ArrowRight, RotateCcw, Trash2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
@@ -15,6 +16,7 @@ import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from '@/components/ui/input-otp'
+import { Label } from '@/components/ui/label'
 
 // Navigation Components
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
@@ -47,6 +49,39 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { MultiSelect } from '@/components/ui/multi-select'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Calendar } from '@/components/ui/calendar'
+
+// Internal components for DesignTokenTest page
+const ColorSwatch = ({ color, name }: { color: string; name: string }) => (
+  <div className="p-4 bg-background border rounded-lg text-center">
+    <div className="w-full h-8 rounded mb-2" style={{ backgroundColor: color }}></div>
+    <Text variant="small">{name}</Text>
+  </div>
+)
+
+const DemoArea = ({ children, size = 'md' }: { children: React.ReactNode; size?: 'sm' | 'md' | 'lg' }) => (
+  <div className={`
+    flex items-center justify-center rounded-md border border-dashed text-sm
+    ${size === 'sm' ? 'h-[80px] w-[160px]' : size === 'md' ? 'h-[100px] w-[200px]' : 'h-[150px] w-[300px]'}
+  `}>
+    {children}
+  </div>
+)
+
+const SuccessCard = ({ title, description, children }: { title: string; description: string; children?: React.ReactNode }) => (
+  <Card className="border-green-200 bg-green-50 dark:bg-green-950/20">
+    <CardContent className="pt-6">
+      <div className="text-center space-y-4">
+        <Text variant="h3" className="text-green-800 dark:text-green-200 mb-2">
+          {title}
+        </Text>
+        <Text variant="p" className="text-green-700 dark:text-green-300">
+          {description}
+        </Text>
+        {children}
+      </div>
+    </CardContent>
+  </Card>
+)
 
 /**
  * Design Token Test Component
@@ -85,18 +120,18 @@ export function DesignTokenTest() {
                 Back to App
               </Button>
             </Link>
-            <div className="flex items-center gap-4">
-              <Text variant="small" className="text-muted-foreground">
-                Current theme: <span className="font-medium">{isDark ? 'Dark' : 'Light'}</span>
-              </Text>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={toggleTheme}
-                className="relative"
-              >
-                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              </Button>
+          <div className="flex items-center gap-4">
+            <Text variant="small" className="text-muted-foreground">
+              Current theme: <span className="font-medium">{isDark ? 'Dark' : 'Light'}</span>
+            </Text>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={toggleTheme}
+              className="relative"
+            >
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </Button>
             </div>
           </div>
 
@@ -122,22 +157,10 @@ export function DesignTokenTest() {
               Watch how colors, backgrounds, and text respond in real-time.
             </Text>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-4 bg-background border rounded-lg text-center">
-                <div className="w-full h-8 bg-primary rounded mb-2"></div>
-                <Text variant="small">Primary</Text>
-              </div>
-              <div className="p-4 bg-muted border rounded-lg text-center">
-                <div className="w-full h-8 bg-foreground rounded mb-2"></div>
-                <Text variant="small">Foreground</Text>
-              </div>
-              <div className="p-4 bg-accent border rounded-lg text-center">
-                <div className="w-full h-8 bg-accent-foreground rounded mb-2"></div>
-                <Text variant="small">Accent</Text>
-              </div>
-              <div className="p-4 bg-card border rounded-lg text-center">
-                <div className="w-full h-8 bg-destructive rounded mb-2"></div>
-                <Text variant="small">Destructive</Text>
-              </div>
+              <ColorSwatch color="hsl(var(--primary))" name="Primary" />
+              <ColorSwatch color="hsl(var(--foreground))" name="Foreground" />
+              <ColorSwatch color="hsl(var(--accent-foreground))" name="Accent" />
+              <ColorSwatch color="hsl(var(--destructive))" name="Destructive" />
             </div>
           </CardContent>
         </Card>
@@ -249,18 +272,24 @@ export function DesignTokenTest() {
         <CardContent className="space-y-4">
           <div>
             <Text variant="h4" className="mb-2">Status Indicators</Text>
-            <div className="space-y-2">
-              <StatusIndicator status="normal" icon={<Clock className="h-3 w-3" />}>
+            <div className="space-y-2 flex flex-wrap gap-2">
+              <StatusIndicator variant="neutral">
                 Normal status
               </StatusIndicator>
-              <StatusIndicator status="dueSoon" icon={<Clock className="h-3 w-3" />}>
+              <StatusIndicator variant="warning" icon={<Clock className="h-3 w-3" />}>
                 Due soon
               </StatusIndicator>
-              <StatusIndicator status="dueToday" icon={<Clock className="h-3 w-3" />}>
+              <StatusIndicator variant="warning" icon={<Clock className="h-3 w-3" />}>
                 Due today
               </StatusIndicator>
-              <StatusIndicator status="overdue" icon={<AlertTriangle className="h-3 w-3" />}>
+              <StatusIndicator variant="error" icon={<AlertTriangle className="h-3 w-3" />}>
                 Overdue
+              </StatusIndicator>
+              <StatusIndicator variant="success" icon={<Star className="h-3 w-3" />}>
+                Completed
+              </StatusIndicator>
+              <StatusIndicator variant="info" icon={<Star className="h-3 w-3" />}>
+                In Progress
               </StatusIndicator>
             </div>
           </div>
@@ -284,6 +313,26 @@ export function DesignTokenTest() {
               <Tag color="#f59e0b" icon="📝">Documentation</Tag>
             </div>
           </div>
+
+          <div>
+            <Text variant="h4" className="mb-2">Due Status Component</Text>
+            <div className="space-y-2">
+              <Text variant="small" className="mb-2">Combined due date and priority display:</Text>
+              <div className="flex gap-2 flex-wrap">
+                <DueStatus dueDate={new Date(Date.now() - 86400000)} priority="high" showPriority />
+                <DueStatus dueDate={new Date()} priority="medium" showPriority />
+                <DueStatus dueDate={new Date(Date.now() + 86400000)} priority="low" showPriority />
+                <DueStatus dueDate={new Date(Date.now() + 259200000)} priority="urgent" showPriority />
+              </div>
+
+              <Text variant="small" className="mb-2 mt-4">Size variants:</Text>
+              <div className="flex gap-2 flex-wrap items-center">
+                <DueStatus dueDate={new Date()} size="sm" />
+                <DueStatus dueDate={new Date()} size="md" />
+                <DueStatus dueDate={new Date()} size="lg" />
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -302,6 +351,156 @@ export function DesignTokenTest() {
           <Text variant="large">Large text - Emphasized content</Text>
           <Text variant="small">Small text - Secondary information</Text>
           <Text variant="muted">Muted text - Less important information</Text>
+        </CardContent>
+      </Card>
+
+      {/* Border Radius System Test */}
+      <Card>
+        <CardHeader>
+          <CardTitle>🔘 Border Radius System</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div>
+            <Text variant="h4" className="mb-3">Border Radius Tokens</Text>
+            <Text variant="p" className="mb-4 text-muted-foreground">
+              Consistent border radius values using design tokens for visual harmony across components.
+            </Text>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <div className="w-20 h-20 bg-primary rounded-none border-2 border-border flex items-center justify-center">
+                  <Text variant="small" className="text-primary-foreground font-medium">None</Text>
+                </div>
+                <Text variant="small" className="text-center">rounded-none (0px)</Text>
+              </div>
+              <div className="space-y-2">
+                <div className="w-20 h-20 bg-secondary rounded-sm border-2 border-border flex items-center justify-center">
+                  <Text variant="small" className="text-secondary-foreground font-medium">SM</Text>
+                </div>
+                <Text variant="small" className="text-center">rounded-sm (4px)</Text>
+              </div>
+              <div className="space-y-2">
+                <div className="w-20 h-20 bg-accent rounded-md border-2 border-border flex items-center justify-center">
+                  <Text variant="small" className="text-accent-foreground font-medium">MD</Text>
+                </div>
+                <Text variant="small" className="text-center">rounded-md (6px)</Text>
+              </div>
+              <div className="space-y-2">
+                <div className="w-20 h-20 bg-muted rounded-lg border-2 border-border flex items-center justify-center">
+                  <Text variant="small" className="text-muted-foreground font-medium">LG</Text>
+                </div>
+                <Text variant="small" className="text-center">rounded-lg (12px)</Text>
+              </div>
+              <div className="space-y-2">
+                <div className="w-20 h-20 bg-destructive rounded-xl border-2 border-border flex items-center justify-center">
+                  <Text variant="small" className="text-destructive-foreground font-medium">XL</Text>
+                </div>
+                <Text variant="small" className="text-center">rounded-xl (16px)</Text>
+              </div>
+              <div className="space-y-2">
+                <div className="w-20 h-20 bg-card rounded-full border-2 border-border flex items-center justify-center">
+                  <Text variant="small" className="text-card-foreground font-medium">Full</Text>
+                </div>
+                <Text variant="small" className="text-center">rounded-full (50%)</Text>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <Text variant="h4" className="mb-3">Component Standards</Text>
+            <Text variant="p" className="mb-4 text-muted-foreground">
+              How border radius is applied consistently across different component types.
+            </Text>
+            <div className="space-y-4">
+              <div>
+                <Text variant="small" className="font-medium mb-2">Status Indicators & Badges (rounded-md)</Text>
+                <div className="flex gap-2 flex-wrap">
+                  <Badge variant="default">Default Badge</Badge>
+                  <StatusIndicator variant="success" icon={<Star className="h-3 w-3" />}>
+                    Success Status
+                  </StatusIndicator>
+                  <DueStatus dueDate={new Date()} />
+                  <PriorityBadge priority="high" />
+                </div>
+              </div>
+
+              <div>
+                <Text variant="small" className="font-medium mb-2">Interactive Elements (rounded-md)</Text>
+                <div className="flex gap-2 flex-wrap">
+                  <Button variant="default">Button</Button>
+                  <Input placeholder="Input field" className="w-32" />
+                  <Checkbox id="demo-checkbox" />
+                  <Label htmlFor="demo-checkbox">Checkbox</Label>
+                </div>
+              </div>
+
+              <div>
+                <Text variant="small" className="font-medium mb-2">Containers & Cards (rounded-lg)</Text>
+                <div className="flex gap-2 flex-wrap">
+                  <Card className="w-32 h-16 p-2">
+                    <CardContent className="p-1">
+                      <Text variant="small">Card</Text>
+                    </CardContent>
+                  </Card>
+                  <div className="w-32 h-16 bg-popover rounded-lg border p-2 flex items-center justify-center">
+                    <Text variant="small">Popover</Text>
+                  </div>
+                  <div className="w-32 h-16 bg-muted rounded-lg border p-2 flex items-center justify-center">
+                    <Text variant="small">Container</Text>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <Text variant="small" className="font-medium mb-2">Circular Elements (rounded-full)</Text>
+                <div className="flex gap-2 flex-wrap items-center">
+                  <Avatar>
+                    <AvatarFallback>AV</AvatarFallback>
+                  </Avatar>
+                  <Button size="icon" variant="outline">
+                    <Star className="h-4 w-4" />
+                  </Button>
+                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                    <Text variant="small" className="text-primary-foreground text-xs">I</Text>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <Text variant="h4" className="mb-3">Before vs After Comparison</Text>
+            <Text variant="p" className="mb-4 text-muted-foreground">
+              Visual comparison showing the consistency improvements made to border radius usage.
+            </Text>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <Text variant="small" className="font-medium text-destructive">❌ Before (Inconsistent)</Text>
+                <div className="space-y-2">
+                  <Badge variant="default">Badge: rounded-md</Badge>
+                  <StatusIndicator variant="warning" icon={<Clock className="h-3 w-3" />}>
+                    Status: rounded (old)
+                  </StatusIndicator>
+                  <DueStatus dueDate={new Date()}>Due: rounded (old)</DueStatus>
+                </div>
+                <Text variant="small" className="text-muted-foreground">
+                  Different border radius values created visual inconsistency
+                </Text>
+              </div>
+              <div className="space-y-3">
+                <Text variant="small" className="font-medium text-green-600">✅ After (Consistent)</Text>
+                <div className="space-y-2">
+                  <Badge variant="default">Badge: rounded-md</Badge>
+                  <StatusIndicator variant="warning" icon={<Clock className="h-3 w-3" />}>
+                    Status: rounded-md
+                  </StatusIndicator>
+                  <DueStatus dueDate={new Date()}>Due: rounded-md</DueStatus>
+                </div>
+                <Text variant="small" className="text-muted-foreground">
+                  All status components now use consistent border radius
+                </Text>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -363,22 +562,22 @@ export function DesignTokenTest() {
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
                 <Checkbox id="terms" />
-                <label htmlFor="terms" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                <Label htmlFor="terms">
                   Accept terms and conditions
-                </label>
+                </Label>
               </div>
               <RadioGroup defaultValue="option-one">
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="option-one" id="option-one" />
-                  <label htmlFor="option-one" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  <Label htmlFor="option-one">
                     Option One
-                  </label>
+                  </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="option-two" id="option-two" />
-                  <label htmlFor="option-two" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  <Label htmlFor="option-two">
                     Option Two
-                  </label>
+                  </Label>
                 </div>
               </RadioGroup>
             </div>
@@ -389,12 +588,12 @@ export function DesignTokenTest() {
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Switch id="airplane-mode" />
-                <label htmlFor="airplane-mode" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                <Label htmlFor="airplane-mode">
                   Airplane mode
-                </label>
+                </Label>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Volume</label>
+                <Label>Volume</Label>
                 <Slider defaultValue={[33]} max={100} step={1} />
               </div>
             </div>
@@ -405,7 +604,7 @@ export function DesignTokenTest() {
             <div className="space-y-2">
               <Textarea placeholder="Type your message here." />
               <div className="space-y-2">
-                <label className="text-sm font-medium">Enter verification code</label>
+                <Label>Enter verification code</Label>
                 <InputOTP maxLength={6}>
                   <InputOTPGroup>
                     <InputOTPSlot index={0} />
@@ -571,8 +770,10 @@ export function DesignTokenTest() {
               <div>
                 <Text variant="small" className="mb-2">Basic Context Menu</Text>
                 <ContextMenu>
-                  <ContextMenuTrigger className="flex h-[100px] w-[200px] items-center justify-center rounded-md border border-dashed text-sm">
-                    Right click here
+                  <ContextMenuTrigger asChild>
+                    <DemoArea>
+                      Right click here
+                    </DemoArea>
                   </ContextMenuTrigger>
                   <ContextMenuContent>
                     <ContextMenuItem>Back</ContextMenuItem>
@@ -587,8 +788,10 @@ export function DesignTokenTest() {
               <div>
                 <Text variant="small" className="mb-2">Context Menu with Icons</Text>
                 <ContextMenu>
-                  <ContextMenuTrigger className="flex h-[100px] w-[200px] items-center justify-center rounded-md border border-dashed text-sm">
-                    Right click here
+                  <ContextMenuTrigger asChild>
+                    <DemoArea>
+                      Right click here
+                    </DemoArea>
                   </ContextMenuTrigger>
                   <ContextMenuContent>
                     <ContextMenuItem>
@@ -766,7 +969,7 @@ export function DesignTokenTest() {
             </div>
           </div>
 
-          <div>
+            <div>
             <Text variant="h4" className="mb-2">Select</Text>
             <div className="max-w-sm">
               <Select>
@@ -781,7 +984,7 @@ export function DesignTokenTest() {
                 </SelectContent>
               </Select>
             </div>
-          </div>
+            </div>
 
           <div>
             <Text variant="h4" className="mb-2">Calendar</Text>
@@ -797,28 +1000,17 @@ export function DesignTokenTest() {
       </Card>
 
       {/* Success Indicator */}
-      <Card className="border-green-200 bg-green-50 dark:bg-green-950/20">
-        <CardContent className="pt-6">
-          <div className="text-center space-y-4">
-            <div>
-              <Text variant="h3" className="text-green-800 dark:text-green-200 mb-2">
-                ✅ Design Tokens Working Successfully!
-              </Text>
-              <Text variant="p" className="text-green-700 dark:text-green-300">
-                All components are using the centralized design token system.
-                Colors, spacing, typography, and variants are all working correctly.
-              </Text>
-            </div>
-
-            <div className="p-4 bg-background/50 rounded-lg border border-green-300 dark:border-green-700">
-              <Text variant="small" className="text-green-600 dark:text-green-400">
-                <strong>Theme Test:</strong> Try switching between light and dark themes using the toggle above.
-                Notice how all colors, backgrounds, and text automatically adapt while maintaining semantic meaning.
-              </Text>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <SuccessCard
+        title="✅ Design Tokens Working Successfully!"
+        description="All components are using the centralized design token system. Colors, spacing, typography, and variants are all working correctly."
+      >
+        <div className="p-4 bg-background/50 rounded-lg border border-green-300 dark:border-green-700">
+          <Text variant="small" className="text-green-600 dark:text-green-400">
+            <strong>Theme Test:</strong> Try switching between light and dark themes using the toggle above.
+            Notice how all colors, backgrounds, and text automatically adapt while maintaining semantic meaning.
+          </Text>
+        </div>
+      </SuccessCard>
 
       {/* Back to app */}
       <div className="text-center">

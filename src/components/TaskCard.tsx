@@ -1,11 +1,11 @@
 import React, { memo, useMemo } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { StatusIndicator, Tag } from '@/components/ui/primitives'
-import { Clock, AlertTriangle } from 'lucide-react'
+import { Tag } from '@/components/ui/primitives'
+import { DueStatus } from '@/components/ui/composites'
+import { Clock } from 'lucide-react'
 import { Draggable } from '@hello-pangea/dnd'
-import { useTaskStore, formatDueDate } from '@/store/todo-store'
-import { getDueDateStatus } from '@/lib/status-colors'
+import { useTaskStore } from '@/store/todo-store'
 import { DetailedTaskForm } from './DetailedTaskForm'
 import { TaskContextMenu } from './TaskContextMenu'
 import type { Task } from '@/store/todo-store'
@@ -31,10 +31,7 @@ const TaskCard = memo(({ task, index }: TaskCardProps) => {
     })
   }, [])
 
-  const dueDateStatus = useMemo(() =>
-    task.dueDate ? getDueDateStatus(task.dueDate) : null,
-    [task.dueDate]
-  )
+
 
   return (
     <Draggable draggableId={task.id} index={index}>
@@ -93,13 +90,8 @@ const TaskCard = memo(({ task, index }: TaskCardProps) => {
                           <span>{formatDate(task.createdAt)}</span>
                         </div>
 
-                        {task.dueDate && dueDateStatus && (
-                          <StatusIndicator
-                            status={dueDateStatus}
-                            icon={dueDateStatus === 'overdue' ? <AlertTriangle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
-                          >
-                            {formatDueDate(task.dueDate)}
-                          </StatusIndicator>
+                        {task.dueDate && (
+                          <DueStatus dueDate={task.dueDate} />
                         )}
                       </div>
                     </div>

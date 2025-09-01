@@ -7,7 +7,8 @@
  * Replaces hardcoded color values with systematic approach
  */
 
-import { cva } from "class-variance-authority";
+import { cva } from "class-variance-authority"
+import { componentBorderRadius } from "./style-utils";
 
 /**
  * Due date status colors
@@ -73,7 +74,7 @@ export const priorityColors = {
  * Status indicator component variants
  */
 export const statusIndicatorVariants = cva(
-  "inline-flex items-center gap-1 text-xs px-2 py-1 rounded transition-colors",
+  `inline-flex items-center gap-1 text-xs px-2 py-1 ${componentBorderRadius.status} transition-colors`,
   {
     variants: {
       status: {
@@ -113,7 +114,7 @@ export const statusIndicatorVariants = cva(
  * Priority badge variants
  */
 export const priorityBadgeVariants = cva(
-  "inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded font-medium transition-colors",
+  `inline-flex items-center gap-1 text-xs px-2 py-0.5 ${componentBorderRadius.status} font-medium transition-colors`,
   {
     variants: {
       priority: {
