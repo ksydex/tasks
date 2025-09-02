@@ -92,9 +92,9 @@ const TaskCard = memo(({ task, index }: TaskCardProps) => {
                         </div>
 
                         {task.dueDate ? (
-                          <DueStatus dueDate={task.dueDate} priority={task.priority} showPriority />
+                          <DueStatus dueDate={task.dueDate} priority={task.priority || null} showPriority />
                         ) : (
-                          <DueStatus priority={task.priority} showPriority />
+                          <DueStatus priority={task.priority || null} showPriority />
                         )}
                       </div>
                     </div>

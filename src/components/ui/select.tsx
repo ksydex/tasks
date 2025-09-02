@@ -1,6 +1,6 @@
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
-import { Check, ChevronDown, ChevronUp } from "lucide-react"
+import { Check, ChevronDown, ChevronUp, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -8,25 +8,68 @@ const Select = SelectPrimitive.Root
 
 const SelectGroup = SelectPrimitive.Group
 
-const SelectValue = SelectPrimitive.Value
+interface SelectValueProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Value> {
+  placeholder?: string
+}
 
-const SelectTrigger = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Trigger
+const SelectValue = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Value>,
+  SelectValueProps
+>(({ placeholder, children, ...props }, ref) => (
+  <SelectPrimitive.Value
     ref={ref}
-    className={cn(
-      "flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
-      className
-    )}
+    placeholder={placeholder}
     {...props}
   >
     {children}
-    <SelectPrimitive.Icon asChild>
-      <ChevronDown className="h-4 w-4 opacity-50" />
-    </SelectPrimitive.Icon>
-  </SelectPrimitive.Trigger>
+  </SelectPrimitive.Value>
+))
+SelectValue.displayName = SelectPrimitive.Value.displayName
+
+interface SelectTriggerProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> {
+  showReset?: boolean
+  onReset?: () => void
+  value?: string | null
+  placeholder?: string
+}
+
+const SelectTrigger = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Trigger>,
+  SelectTriggerProps
+>(({ className, children, showReset = false, onReset, value, placeholder, ...props }, ref) => (
+  <div className="relative">
+    <SelectPrimitive.Trigger
+      ref={ref}
+      className={cn(
+        "group flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+        className
+      )}
+      {...props}
+    >
+      {children}
+      <SelectPrimitive.Icon asChild>
+        <ChevronDown className="h-4 w-4 opacity-50 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+      </SelectPrimitive.Icon>
+    </SelectPrimitive.Trigger>
+
+    {showReset && value && (
+      <button
+        type="button"
+        onMouseDown={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+        }}
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          onReset?.()
+        }}
+        className="absolute right-8 top-1/2 -translate-y-1/2 p-0.5 rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors z-10"
+      >
+        <X className="h-3 w-3" />
+      </button>
+    )}
+  </div>
 ))
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName
 

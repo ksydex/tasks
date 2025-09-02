@@ -11,7 +11,7 @@ export interface DueStatusProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof dueStatusVariants> {
   dueDate?: Date
-  priority?: Priority
+  priority?: Priority | null
   showIcon?: boolean
   showPriority?: boolean
   size?: 'sm' | 'md' | 'lg'
@@ -44,7 +44,7 @@ const DueStatus = React.forwardRef<HTMLDivElement, DueStatusProps>(
   ({
     className,
     dueDate,
-    priority = "medium",
+    priority,
     showIcon = true,
     showPriority = false,
     size = "md",
@@ -60,8 +60,13 @@ const DueStatus = React.forwardRef<HTMLDivElement, DueStatusProps>(
     }
 
     const getPriorityText = () => {
-      if (!showPriority) return null
-      return priority.charAt(0).toUpperCase() + priority.slice(1)
+      if (!showPriority || !priority || typeof priority !== 'string') return null
+      try {
+        return priority.charAt(0).toUpperCase() + priority.slice(1)
+      } catch (error) {
+        console.warn('Error formatting priority text:', error)
+        return null
+      }
     }
 
     const formatDate = (date: Date) => {

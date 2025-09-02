@@ -35,7 +35,7 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
   const setOpen = onOpenChange || setInternalOpen
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [priority, setPriority] = useState<Priority>('medium')
+  const [priority, setPriority] = useState<Priority | null>(null)
   const [storyPoints, setStoryPoints] = useState<number | undefined>()
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
   const [dueDate, setDueDate] = useState<string>('')
@@ -49,21 +49,21 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
     if (task && open) {
       setTitle(task.title)
       setDescription(task.description || '')
-      setPriority(task.priority)
+      setPriority(task.priority || null)
       setStoryPoints(task.storyPoints)
       setSelectedTagIds(task.tagIds || [])
       setDueDate(task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '')
     } else if (open && initialTitle) {
       setTitle(initialTitle)
       setDescription('')
-      setPriority('medium')
+      setPriority(null)
       setStoryPoints(undefined)
       setSelectedTagIds([])
       setDueDate('')
     } else if (!open) {
       setTitle('')
       setDescription('')
-      setPriority('medium')
+      setPriority(null)
       setStoryPoints(undefined)
       setSelectedTagIds([])
       setDueDate('')
@@ -91,7 +91,7 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
 
     setTitle('')
     setDescription('')
-    setPriority('medium')
+    setPriority(null)
     setStoryPoints(undefined)
     setSelectedTagIds([])
     setDueDate('')
@@ -160,12 +160,17 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
 
           <div className="space-y-2">
             <Label htmlFor="priority">Priority</Label>
-            <Select value={priority} onValueChange={(value: Priority) => setPriority(value)}>
-              <SelectTrigger>
-                <SelectValue>
+            <Select value={priority || ""} onValueChange={(value: string) => setPriority(value === "" ? null : value as Priority)}>
+              <SelectTrigger
+                showReset={true}
+                onReset={() => setPriority(null)}
+                value={priority}
+                placeholder="Select priority..."
+              >
+                <SelectValue placeholder="Select priority...">
                   <div className="flex items-center gap-2">
                     <Flag className="h-4 w-4" />
-                    {priorities.find(p => p.id === priority)?.name || priority.charAt(0).toUpperCase() + priority.slice(1)}
+                    {priority && typeof priority === 'string' ? priorities.find(p => p.id === priority)?.name || priority.charAt(0).toUpperCase() + priority.slice(1) : null}
                   </div>
                 </SelectValue>
               </SelectTrigger>

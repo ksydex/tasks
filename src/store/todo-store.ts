@@ -29,7 +29,7 @@ export interface Task {
   description?: string
   status: string
   tagIds: string[]
-  priority: Priority
+  priority?: Priority
   storyPoints?: number
   dueDate?: Date
   createdAt: Date
@@ -42,7 +42,7 @@ interface TaskState {
   priorities: PriorityLevel[]
 
   // Task operations
-  addTask: (title: string, description?: string, tagIds?: string[], priority?: Priority, storyPoints?: number, dueDate?: Date) => void
+  addTask: (title: string, description?: string, tagIds?: string[], priority?: Priority | null, storyPoints?: number, dueDate?: Date) => void
   deleteTask: (id: string) => void
   editTask: (id: string, updates: Partial<Pick<Task, 'title' | 'description' | 'tagIds' | 'priority' | 'storyPoints' | 'dueDate'>>) => void
   moveTask: (id: string, status: string) => void
@@ -93,7 +93,7 @@ export const useTaskStore = create<TaskState>()(
       priorities: defaultPriorities,
 
       // Task operations
-      addTask: (title: string, description?: string, tagIds: string[] = [], priority: Priority = 'medium', storyPoints?: number, dueDate?: Date) => {
+      addTask: (title: string, description?: string, tagIds: string[] = [], priority?: Priority | null, storyPoints?: number, dueDate?: Date) => {
         if (!title.trim()) return
 
         const newTask: Task = {
@@ -102,7 +102,7 @@ export const useTaskStore = create<TaskState>()(
           description: description?.trim(),
           status: get().columns[0]?.id || 'todo',
           tagIds,
-          priority,
+          priority: priority || null,
           storyPoints,
           dueDate,
           createdAt: new Date(),
