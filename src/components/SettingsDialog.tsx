@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
   DialogTitle,
-  DialogTrigger 
+  DialogTrigger
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,18 +14,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Settings, Plus, Trash2, Edit3 } from 'lucide-react'
 import { useTaskStore } from '@/store/todo-store'
-import type { Column, Tag } from '@/store/todo-store'
+import type { Column, Tag, PriorityLevel } from '@/store/todo-store'
+import type { Priority } from '@/lib/status-colors'
 
 const columnIcons = ['📋', '⚡', '✅', '🔄', '⏸️', '🚀', '🎯', '💡', '🔍', '📊']
 const tagIcons = ['🔥', '⭐', '🐛', '💡', '📝', '🎨', '⚙️', '📱', '🌟', '🚨']
+const priorityIcons = ['🔽', '⚖️', '🔺', '🚨', '⏫', '⬇️', '➡️', '⬆️', '🎯', '🚀']
 const colors = [
-  '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', 
+  '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6',
   '#06b6d4', '#84cc16', '#f97316', '#ec4899', '#6366f1', '#6b7280'
 ]
 
 interface EditFormProps {
-  item: Column | Tag
-  type: 'column' | 'tag'
+  item: Column | Tag | PriorityLevel
+  type: 'column' | 'tag' | 'priority'
   onSave: (updates: any) => void
   onCancel: () => void
 }
@@ -34,24 +36,34 @@ function EditForm({ item, type, onSave, onCancel }: EditFormProps) {
   const [title, setTitle] = useState('title' in item ? item.title : item.name)
   const [icon, setIcon] = useState(item.icon)
   const [color, setColor] = useState(item.color)
-  
-  const icons = type === 'column' ? columnIcons : tagIcons
-  
+
+  const icons = type === 'column' ? columnIcons : type === 'tag' ? tagIcons : priorityIcons
+
   const handleSave = () => {
-    onSave(type === 'column' ? { title, icon, color } : { name: title, icon, color })
+    if (type === 'column') {
+      onSave({ title, icon, color })
+    } else {
+      onSave({ name: title, icon, color })
+    }
   }
-  
+
   return (
     <div className="space-y-4 p-4 border rounded-lg bg-card">
       <div className="space-y-2">
-        <Label>{type === 'column' ? 'Column Name' : 'Tag Name'}</Label>
-        <Input 
+        <Label>
+          {type === 'column' ? 'Column Name' : type === 'tag' ? 'Tag Name' : 'Priority Name'}
+        </Label>
+        <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder={type === 'column' ? 'Enter column name' : 'Enter tag name'}
+          placeholder={
+            type === 'column' ? 'Enter column name' :
+            type === 'tag' ? 'Enter tag name' :
+            'Enter priority name'
+          }
         />
       </div>
-      
+
       <div className="space-y-2">
         <Label>Icon</Label>
         <div className="flex flex-wrap gap-2">
@@ -76,7 +88,7 @@ function EditForm({ item, type, onSave, onCancel }: EditFormProps) {
           ))}
         </div>
       </div>
-      
+
       <div className="space-y-2">
         <Label>Color</Label>
         <div className="flex flex-wrap gap-2">
@@ -86,7 +98,7 @@ function EditForm({ item, type, onSave, onCancel }: EditFormProps) {
               variant="outline"
               size="sm"
               className="w-8 h-8 p-0 border-2"
-              style={{ 
+              style={{
                 backgroundColor: colorOption,
                 borderColor: color === colorOption ? '#000' : colorOption
               }}
@@ -95,7 +107,7 @@ function EditForm({ item, type, onSave, onCancel }: EditFormProps) {
           ))}
         </div>
       </div>
-      
+
       <div className="flex gap-2">
         <Button onClick={handleSave} size="sm">Save</Button>
         <Button onClick={onCancel} variant="outline" size="sm">Cancel</Button>
@@ -105,46 +117,54 @@ function EditForm({ item, type, onSave, onCancel }: EditFormProps) {
 }
 
 export function SettingsDialog() {
-  const { 
-    columns, 
-    tags, 
-    addColumn, 
-    editColumn, 
+  const {
+    columns,
+    tags,
+    priorities,
+    addColumn,
+    editColumn,
     deleteColumn,
     addTag,
     editTag,
-    deleteTag
+    deleteTag,
+    editPriority
   } = useTaskStore()
-  
+
   const [editingColumn, setEditingColumn] = useState<string | null>(null)
   const [editingTag, setEditingTag] = useState<string | null>(null)
+  const [editingPriority, setEditingPriority] = useState<Priority | null>(null)
   const [showNewColumn, setShowNewColumn] = useState(false)
   const [showNewTag, setShowNewTag] = useState(false)
-  
+
   const handleColumnSave = (id: string, updates: Partial<Column>) => {
     editColumn(id, updates)
     setEditingColumn(null)
   }
-  
+
   const handleTagSave = (id: string, updates: Partial<Tag>) => {
     editTag(id, updates)
     setEditingTag(null)
   }
-  
+
+  const handlePrioritySave = (id: Priority, updates: Partial<PriorityLevel>) => {
+    editPriority(id, updates)
+    setEditingPriority(null)
+  }
+
   const handleNewColumn = (data: { title: string; icon: string; color: string }) => {
     if (data.title.trim()) {
       addColumn(data.title, data.icon, data.color)
       setShowNewColumn(false)
     }
   }
-  
+
   const handleNewTag = (data: { name: string; icon: string; color: string }) => {
     if (data.name.trim()) {
       addTag(data.name, data.color, data.icon)
       setShowNewTag(false)
     }
   }
-  
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -156,17 +176,18 @@ export function SettingsDialog() {
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
         </DialogHeader>
-        
+
         <Tabs defaultValue="columns" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="columns">Columns</TabsTrigger>
             <TabsTrigger value="tags">Tags</TabsTrigger>
+            <TabsTrigger value="priorities">Priorities</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="columns" className="space-y-4">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold">Board Columns</h3>
-              <Button 
+              <Button
                 onClick={() => setShowNewColumn(true)}
                 size="sm"
                 className="gap-2"
@@ -175,7 +196,7 @@ export function SettingsDialog() {
                 Add Column
               </Button>
             </div>
-            
+
             {showNewColumn && (
               <EditForm
                 item={{ id: '', title: '', icon: columnIcons[0], color: colors[0] } as Column}
@@ -184,11 +205,11 @@ export function SettingsDialog() {
                 onCancel={() => setShowNewColumn(false)}
               />
             )}
-            
+
             <div className="space-y-3">
               {columns.map((column) => (
                 <Card key={column.id}>
-                  <CardContent className="p-4">
+                  <CardContent>
                     {editingColumn === column.id ? (
                       <EditForm
                         item={column}
@@ -202,7 +223,7 @@ export function SettingsDialog() {
                           {column.icon && <span className="text-2xl">{column.icon}</span>}
                           <div>
                             <h4 className="font-medium">{column.title}</h4>
-                            <div 
+                            <div
                               className="w-4 h-4 rounded-full border"
                               style={{ backgroundColor: column.color }}
                             />
@@ -234,11 +255,11 @@ export function SettingsDialog() {
               ))}
             </div>
           </TabsContent>
-          
+
           <TabsContent value="tags" className="space-y-4">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold">Task Tags</h3>
-              <Button 
+              <Button
                 onClick={() => setShowNewTag(true)}
                 size="sm"
                 className="gap-2"
@@ -247,7 +268,7 @@ export function SettingsDialog() {
                 Add Tag
               </Button>
             </div>
-            
+
             {showNewTag && (
               <EditForm
                 item={{ id: '', name: '', icon: tagIcons[0], color: colors[0] } as Tag}
@@ -256,11 +277,11 @@ export function SettingsDialog() {
                 onCancel={() => setShowNewTag(false)}
               />
             )}
-            
+
             <div className="space-y-3">
               {tags.map((tag) => (
                 <Card key={tag.id}>
-                  <CardContent className="p-4">
+                  <CardContent>
                     {editingTag === tag.id ? (
                       <EditForm
                         item={tag}
@@ -271,10 +292,10 @@ export function SettingsDialog() {
                     ) : (
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <Badge 
+                          <Badge
                             variant="secondary"
                             className="gap-1"
-                            style={{ 
+                            style={{
                               backgroundColor: tag.color + '20',
                               color: tag.color,
                               borderColor: tag.color
@@ -299,6 +320,55 @@ export function SettingsDialog() {
                             className="text-destructive hover:text-destructive"
                           >
                             <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="priorities" className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Task Priorities</h3>
+            </div>
+
+            <div className="space-y-3">
+              {priorities.map((priority) => (
+                <Card key={priority.id}>
+                  <CardContent>
+                    {editingPriority === priority.id ? (
+                      <EditForm
+                        item={priority}
+                        type="priority"
+                        onSave={(updates) => handlePrioritySave(priority.id, updates)}
+                        onCancel={() => setEditingPriority(null)}
+                      />
+                    ) : (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Badge
+                            variant="secondary"
+                            className="gap-1"
+                            style={{
+                              backgroundColor: priority.color + '20',
+                              color: priority.color,
+                              borderColor: priority.color
+                            }}
+                          >
+                            {priority.icon && <span>{priority.icon}</span>}
+                            {priority.name}
+                          </Badge>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingPriority(priority.id)}
+                          >
+                            <Edit3 className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>

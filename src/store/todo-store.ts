@@ -1,8 +1,16 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import type { Priority } from '@/lib/status-colors'
 
 export interface Tag {
   id: string
+  name: string
+  color: string
+  icon: string
+}
+
+export interface PriorityLevel {
+  id: Priority
   name: string
   color: string
   icon: string
@@ -21,6 +29,7 @@ export interface Task {
   description?: string
   status: string
   tagIds: string[]
+  priority: Priority
   storyPoints?: number
   dueDate?: Date
   createdAt: Date
@@ -30,11 +39,12 @@ interface TaskState {
   tasks: Task[]
   columns: Column[]
   tags: Tag[]
+  priorities: PriorityLevel[]
 
   // Task operations
-  addTask: (title: string, description?: string, tagIds?: string[], storyPoints?: number, dueDate?: Date) => void
+  addTask: (title: string, description?: string, tagIds?: string[], priority?: Priority, storyPoints?: number, dueDate?: Date) => void
   deleteTask: (id: string) => void
-  editTask: (id: string, updates: Partial<Pick<Task, 'title' | 'description' | 'tagIds' | 'storyPoints' | 'dueDate'>>) => void
+  editTask: (id: string, updates: Partial<Pick<Task, 'title' | 'description' | 'tagIds' | 'priority' | 'storyPoints' | 'dueDate'>>) => void
   moveTask: (id: string, status: string) => void
   moveTaskToPosition: (taskId: string, sourceColumnId: string, destColumnId: string, sourceIndex: number, destIndex: number) => void
   reorderTasks: (sourceIndex: number, destIndex: number, status: string) => void
@@ -49,6 +59,9 @@ interface TaskState {
   addTag: (name: string, color: string, icon: string) => void
   editTag: (id: string, updates: Partial<Pick<Tag, 'name' | 'color' | 'icon'>>) => void
   deleteTag: (id: string) => void
+
+  // Priority operations
+  editPriority: (id: Priority, updates: Partial<Pick<PriorityLevel, 'name' | 'color' | 'icon'>>) => void
 }
 
 const defaultColumns: Column[] = [
@@ -64,15 +77,23 @@ const defaultTags: Tag[] = [
   { id: 'improvement', name: 'Improvement', color: '#06b6d4', icon: '💡' },
 ]
 
+const defaultPriorities: PriorityLevel[] = [
+  { id: 'low', name: 'Low', color: '#3b82f6', icon: '🔽' },
+  { id: 'medium', name: 'Medium', color: '#f59e0b', icon: '⚖️' },
+  { id: 'high', name: 'High', color: '#f97316', icon: '🔺' },
+  { id: 'urgent', name: 'Urgent', color: '#ef4444', icon: '🚨' },
+]
+
 export const useTaskStore = create<TaskState>()(
   persist(
     (set, get) => ({
       tasks: [],
       columns: defaultColumns,
       tags: defaultTags,
+      priorities: defaultPriorities,
 
       // Task operations
-      addTask: (title: string, description?: string, tagIds: string[] = [], storyPoints?: number, dueDate?: Date) => {
+      addTask: (title: string, description?: string, tagIds: string[] = [], priority: Priority = 'medium', storyPoints?: number, dueDate?: Date) => {
         if (!title.trim()) return
 
         const newTask: Task = {
@@ -81,6 +102,7 @@ export const useTaskStore = create<TaskState>()(
           description: description?.trim(),
           status: get().columns[0]?.id || 'todo',
           tagIds,
+          priority,
           storyPoints,
           dueDate,
           createdAt: new Date(),
@@ -97,7 +119,7 @@ export const useTaskStore = create<TaskState>()(
         }))
       },
 
-      editTask: (id: string, updates: Partial<Pick<Task, 'title' | 'description' | 'tagIds' | 'storyPoints' | 'dueDate'>>) => {
+      editTask: (id: string, updates: Partial<Pick<Task, 'title' | 'description' | 'tagIds' | 'priority' | 'storyPoints' | 'dueDate'>>) => {
         if (updates.title && !updates.title.trim()) return
 
         set((state) => ({
@@ -108,6 +130,7 @@ export const useTaskStore = create<TaskState>()(
               title: updates.title?.trim() || task.title,
               description: updates.description?.trim() || task.description,
               tagIds: updates.tagIds !== undefined ? updates.tagIds : task.tagIds,
+              priority: updates.priority !== undefined ? updates.priority : task.priority,
               storyPoints: updates.storyPoints !== undefined ? updates.storyPoints : task.storyPoints,
               dueDate: updates.dueDate !== undefined ? updates.dueDate : task.dueDate
             } : task
@@ -273,6 +296,15 @@ export const useTaskStore = create<TaskState>()(
             ...task,
             tagIds: task.tagIds.filter((tagId) => tagId !== id)
           }))
+        }))
+      },
+
+      // Priority operations
+      editPriority: (id: Priority, updates: Partial<Pick<PriorityLevel, 'name' | 'color' | 'icon'>>) => {
+        set((state) => ({
+          priorities: state.priorities.map((priority) =>
+            priority.id === id ? { ...priority, ...updates } : priority
+          )
         }))
       },
     }),

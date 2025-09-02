@@ -14,10 +14,12 @@ import {
 import { MultiSelect } from '@/components/ui/multi-select'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { CalendarDays, Trash2, FileText, Calendar as CalendarIcon, Clock } from 'lucide-react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { CalendarDays, Trash2, FileText, Calendar as CalendarIcon, Clock, Flag } from 'lucide-react'
 import { useTaskStore } from '@/store/todo-store'
 import { TaskContextMenu } from './TaskContextMenu'
 import type { Task } from '@/store/todo-store'
+import type { Priority } from '@/lib/status-colors'
 
 interface DetailedTaskFormProps {
   task?: Task
@@ -33,12 +35,13 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
   const setOpen = onOpenChange || setInternalOpen
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [priority, setPriority] = useState<Priority>('medium')
   const [storyPoints, setStoryPoints] = useState<number | undefined>()
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
   const [dueDate, setDueDate] = useState<string>('')
   const [calendarOpen, setCalendarOpen] = useState(false)
 
-  const { addTask, editTask, tags } = useTaskStore()
+  const { addTask, editTask, tags, priorities } = useTaskStore()
 
   const isEditing = !!task
 
@@ -46,18 +49,21 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
     if (task && open) {
       setTitle(task.title)
       setDescription(task.description || '')
+      setPriority(task.priority)
       setStoryPoints(task.storyPoints)
       setSelectedTagIds(task.tagIds || [])
       setDueDate(task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '')
     } else if (open && initialTitle) {
       setTitle(initialTitle)
       setDescription('')
+      setPriority('medium')
       setStoryPoints(undefined)
       setSelectedTagIds([])
       setDueDate('')
     } else if (!open) {
       setTitle('')
       setDescription('')
+      setPriority('medium')
       setStoryPoints(undefined)
       setSelectedTagIds([])
       setDueDate('')
@@ -75,15 +81,17 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
         title,
         description: description || undefined,
         tagIds: selectedTagIds,
+        priority,
         storyPoints,
         dueDate: dueDateObj
       })
     } else {
-      addTask(title, description || undefined, selectedTagIds, storyPoints, dueDateObj)
+      addTask(title, description || undefined, selectedTagIds, priority, storyPoints, dueDateObj)
     }
 
     setTitle('')
     setDescription('')
+    setPriority('medium')
     setStoryPoints(undefined)
     setSelectedTagIds([])
     setDueDate('')
@@ -151,6 +159,34 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="priority">Priority</Label>
+            <Select value={priority} onValueChange={(value: Priority) => setPriority(value)}>
+              <SelectTrigger>
+                <SelectValue>
+                  <div className="flex items-center gap-2">
+                    <Flag className="h-4 w-4" />
+                    {priorities.find(p => p.id === priority)?.name || priority.charAt(0).toUpperCase() + priority.slice(1)}
+                  </div>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {priorities.map((priorityLevel) => (
+                  <SelectItem key={priorityLevel.id} value={priorityLevel.id}>
+                    <div className="flex items-center gap-2">
+                      {priorityLevel.icon && <span>{priorityLevel.icon}</span>}
+                      <div
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: priorityLevel.color }}
+                      ></div>
+                      {priorityLevel.name}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="storyPoints">Story Points</Label>
             <Input
               id="storyPoints"
@@ -183,7 +219,11 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
                     setDueDate(date ? date.toISOString().split('T')[0] : '')
                     setCalendarOpen(false)
                   }}
-                  disabled={(date) => date < new Date()}
+                  disabled={(date) => {
+                    const today = new Date()
+                    today.setHours(0, 0, 0, 0)
+                    return date < today
+                  }}
                   initialFocus
                 />
               </PopoverContent>
