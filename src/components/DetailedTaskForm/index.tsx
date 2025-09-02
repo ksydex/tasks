@@ -12,10 +12,10 @@ import {
 } from '@/components/ui/dialog'
 import { MultiSelect } from '@/components/ui/multi-select'
 import { CalendarDays, FileText } from 'lucide-react'
-import { useTaskForm } from '@/hooks/use-task-form'
-import { TaskContextMenu } from './TaskContextMenu'
+import { useTaskForm } from './use-task-form'
+import { TaskContextMenu } from '../TaskContextMenu'
 import { FormFieldWrapper, PrioritySelector, DatePickerField } from '@/components/ui/composites'
-import { TASK_FORM_TEXTS, FORM_VALIDATION, FORM_CONFIG } from '@/lib/forms/task-form.constants'
+import { TASK_FORM_TEXTS, FORM_VALIDATION, FORM_CONFIG } from './constants'
 import type { DetailedTaskFormProps } from './types'
 
 /**
