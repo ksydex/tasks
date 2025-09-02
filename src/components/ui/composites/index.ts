@@ -17,6 +17,11 @@ export * from "./form"
 // Status components
 export * from "./due-status"
 
+// Form components
+export * from "./form-field"
+export * from "./priority-selector"
+export * from "./date-picker-field"
+
 // Re-export for backward compatibility
 export {
   Card,

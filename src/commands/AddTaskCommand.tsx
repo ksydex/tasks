@@ -22,7 +22,7 @@ export function AddTaskCommand({ onExecute, onClose }: CommandComponentProps) {
     if (!taskName.trim()) return
 
     const points = storyPoints ? parseInt(storyPoints) : undefined
-    addTask(taskName.trim(), undefined, [], points)
+    addTask(taskName.trim(), undefined, [], undefined, points)
 
     onExecute('fast-create', { taskName: taskName.trim(), storyPoints: points })
     onClose()
