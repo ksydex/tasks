@@ -40,7 +40,7 @@ const TaskCard = memo(({ task, index }: TaskCardProps) => {
           <div
             ref={provided.innerRef}
             {...provided.draggableProps}
-            className={`${snapshot.isDragging ? 'rotate-2 scale-105' : ''} transition-transform`}
+            className={`${snapshot.isDragging ? 'rotate-2 scale-105' : ''}`}
           >
             <DetailedTaskForm
               task={task}
