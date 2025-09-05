@@ -33,23 +33,12 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
     tagOptions,
     priorities,
     updateField,
-    handleSubmit,
     resetForm,
   } = useTaskForm(task, initialTitle)
 
   const columns = useTaskStore((s) => s.columns)
   const moveTask = useTaskStore((s) => s.moveTask)
 
-  /**
-   * Обрабатывает отправку формы.
-   */
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const success = await handleSubmit()
-    if (success) {
-      setOpen(false)
-    }
-  }
 
   /**
    * Обрабатывает закрытие формы.
@@ -117,8 +106,6 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
             tagOptions={tagOptions}
             priorities={priorities}
             updateField={updateField}
-            onSubmit={onSubmit}
-            onCancel={handleClose}
           />
           <TaskCommentsPanel />
         </div>

@@ -42,7 +42,7 @@ interface TaskState {
   priorities: PriorityLevel[]
 
   // Task operations
-  addTask: (title: string, description?: string, tagIds?: string[], priority?: Priority | null, storyPoints?: number, dueDate?: Date, status?: string) => void
+  addTask: (title: string, description?: string, tagIds?: string[], priority?: Priority | null, storyPoints?: number, dueDate?: Date, status?: string) => string
   deleteTask: (id: string) => void
   editTask: (id: string, updates: Partial<Pick<Task, 'title' | 'description' | 'tagIds' | 'priority' | 'storyPoints' | 'dueDate'>>) => void
   moveTask: (id: string, status: string) => void
@@ -94,7 +94,7 @@ export const useTaskStore = create<TaskState>()(
 
       // Task operations
       addTask: (title: string, description?: string, tagIds: string[] = [], priority?: Priority | null, storyPoints?: number, dueDate?: Date, status?: string) => {
-        if (!title.trim()) return
+        if (!title.trim()) return ''
 
         const newTask: Task = {
           id: Date.now().toString(),
@@ -111,6 +111,8 @@ export const useTaskStore = create<TaskState>()(
         set((state) => ({
           tasks: [newTask, ...state.tasks]
         }))
+
+        return newTask.id
       },
 
       deleteTask: (id: string) => {

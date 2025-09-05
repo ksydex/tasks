@@ -34,8 +34,6 @@ interface TaskInfoPanelProps {
   tagOptions: Array<{ label: string; value: string }>
   priorities: PriorityLevel[]
   updateField: (field: string, value: any) => void
-  onSubmit: (e: React.FormEvent) => void
-  onCancel: () => void
 }
 
 /**
@@ -51,13 +49,11 @@ export function TaskInfoPanel({
   tagOptions,
   priorities,
   updateField,
-  onSubmit,
-  onCancel,
 }: TaskInfoPanelProps) {
   return (
     <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-gray-400 dark:[&::-webkit-scrollbar-thumb]:bg-gray-600 dark:[&::-webkit-scrollbar-thumb:hover]:bg-gray-500">
       <div className="p-4">
-      <form onSubmit={onSubmit} className="space-y-6">
+      <div className="space-y-6">
         <FormFieldWrapper
           id="title"
           label={TASK_FORM_TEXTS.title}
@@ -153,15 +149,7 @@ export function TaskInfoPanel({
           </>
         )}
 
-        <div className="flex justify-end gap-2 pt-4">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            {TASK_FORM_TEXTS.cancel}
-          </Button>
-          <Button type="submit" disabled={isSubmitting || !formState.title.trim()}>
-            {isEditing ? TASK_FORM_TEXTS.saveChanges : TASK_FORM_TEXTS.createTask}
-          </Button>
-        </div>
-      </form>
+      </div>
       </div>
     </div>
   )
