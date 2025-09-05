@@ -4,7 +4,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { Separator } from '@/components/ui/separator'
 import { MultiSelect } from '@/components/ui/multi-select'
 import { CalendarDays } from 'lucide-react'
-import { TaskContextMenu } from '../TaskContextMenu'
 import { FormFieldWrapper, PrioritySelector, DatePickerField } from '@/components/ui/composites'
 import { TASK_FORM_TEXTS, FORM_VALIDATION, FORM_CONFIG } from './constants'
 import type { Task, PriorityLevel } from '@/store/todo-store'
@@ -57,20 +56,7 @@ export function TaskInfoPanel({
 }: TaskInfoPanelProps) {
   return (
     <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-gray-400 dark:[&::-webkit-scrollbar-thumb]:bg-gray-600 dark:[&::-webkit-scrollbar-thumb:hover]:bg-gray-500">
-      <div className="p-6 pr-3">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold">
-            {isEditing ? TASK_FORM_TEXTS.editTitle : TASK_FORM_TEXTS.createTitle}
-          </h2>
-          {isEditing && task && (
-            <TaskContextMenu
-              taskId={task.id}
-              variant="dropdown"
-              onDelete={onCancel}
-            />
-          )}
-        </div>
-
+      <div className="p-4">
       <form onSubmit={onSubmit} className="space-y-6">
         <FormFieldWrapper
           id="title"

@@ -55,6 +55,7 @@ const DueStatus = React.forwardRef<HTMLDivElement, DueStatusProps>(
 
     const getIcon = () => {
       if (!showIcon) return null
+      if (!dueDate) return null
       if (status === "overdue") return <AlertTriangle className="h-3 w-3" />
       return <Clock className="h-3 w-3" />
     }
@@ -106,7 +107,13 @@ const DueStatus = React.forwardRef<HTMLDivElement, DueStatusProps>(
       return diffDays <= 3 && diffDays >= -3 // Within 4 days (including overdue)
     }
 
-    const displayText = children || (dueDate ? formatRelativeTime(dueDate) : "No due date")
+    const hasPriority = !!(showPriority && priority && typeof priority === 'string')
+    const displayText = (children as React.ReactNode) ?? (dueDate ? formatRelativeTime(dueDate) : null)
+
+    // If no due date, no priority to show, and no custom children provided — render nothing
+    if (!dueDate && !hasPriority && !children) {
+      return null
+    }
     const showTooltip = dueDate && shouldShowRelativeTime(dueDate)
     const actualDate = dueDate ? formatDate(dueDate) : null
 
@@ -120,12 +127,14 @@ const DueStatus = React.forwardRef<HTMLDivElement, DueStatusProps>(
         {...props}
       >
         {getIcon()}
-        <span>
-          {displayText}
-        </span>
+        {displayText && (
+          <span>
+            {displayText}
+          </span>
+        )}
         {getPriorityText() && (
           <>
-            <span className="text-muted-foreground">•</span>
+            {displayText && <span className="text-muted-foreground">•</span>}
             <span className="font-medium">{getPriorityText()}</span>
           </>
         )}

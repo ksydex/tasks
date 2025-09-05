@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge'
 export function TaskCommentsPanel() {
   return (
     <div className="flex-1 border-t lg:border-t-0 lg:border-l border-border overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-gray-400 dark:[&::-webkit-scrollbar-thumb]:bg-gray-600 dark:[&::-webkit-scrollbar-thumb:hover]:bg-gray-500">
-      <div className="p-6 pl-3 pr-12 lg:pr-3">
+      <div className="p-4">
         <div className="sticky top-0 bg-background z-10 pb-4 pr-8 lg:pr-0">
         <Tabs defaultValue="comments" className="w-full">
           <TabsList className="grid w-full grid-cols-3">

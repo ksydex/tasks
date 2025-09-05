@@ -14,6 +14,7 @@ interface TaskFormState {
   storyPoints: number | undefined;
   selectedTagIds: string[];
   dueDate: string;
+  status: string;
 }
 
 /**
@@ -31,7 +32,7 @@ interface TaskFormErrors {
  * Обеспечивает состояние, валидацию и обработку событий.
  */
 export function useTaskForm(task?: Task, initialTitle?: string) {
-  const { addTask, editTask, tags, priorities } = useTaskStore();
+  const { addTask, editTask, tags, priorities, columns } = useTaskStore();
 
   const [formState, setFormState] = useState<TaskFormState>({
     title: '',
@@ -40,6 +41,7 @@ export function useTaskForm(task?: Task, initialTitle?: string) {
     storyPoints: undefined,
     selectedTagIds: [],
     dueDate: '',
+    status: columns[0]?.id || 'todo',
   });
 
   const [errors, setErrors] = useState<TaskFormErrors>({});
@@ -59,6 +61,7 @@ export function useTaskForm(task?: Task, initialTitle?: string) {
         storyPoints: task.storyPoints,
         selectedTagIds: task.tagIds || [],
         dueDate: dateToInputValue(task.dueDate),
+        status: task.status,
       });
     } else if (initialTitle) {
       setFormState(prev => ({
@@ -82,9 +85,10 @@ export function useTaskForm(task?: Task, initialTitle?: string) {
       storyPoints: undefined,
       selectedTagIds: [],
       dueDate: '',
+      status: columns[0]?.id || 'todo',
     });
     setErrors({});
-  }, []);
+  }, [columns]);
 
   /**
    * Обновляет поле формы.
@@ -159,7 +163,8 @@ export function useTaskForm(task?: Task, initialTitle?: string) {
           formState.selectedTagIds,
           formState.priority,
           formState.storyPoints,
-          dueDateObj
+          dueDateObj,
+          formState.status
         );
       }
 
