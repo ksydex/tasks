@@ -1,19 +1,17 @@
 import { useState, useEffect } from 'react'
 import { DragDropContext, DropResult } from '@hello-pangea/dnd'
 import { PowerfulInput } from '@/components/PowerfulInput'
-import { DetailedTaskForm } from '@/components/DetailedTaskForm'
 import { KanbanColumn } from '@/components/KanbanColumn'
 import { TaskStats } from '@/components/TaskStats'
 import { SettingsDialog } from '@/components/SettingsDialog'
 import { useTaskStore, useTasksByStatus, useTaskStats } from '@/store/todo-store'
 import { Button } from '@/components/ui/button'
 import { Moon, Sun, Kanban, Palette } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 
 function HomePage() {
   const [isDark, setIsDark] = useState(false)
-  const [detailedFormOpen, setDetailedFormOpen] = useState(false)
-  const [initialTitle, setInitialTitle] = useState('')
+  const [searchParams, setSearchParams] = useSearchParams()
   const { columns, moveTask, moveTaskToPosition, reorderTasks } = useTaskStore()
   const tasksByStatus = useTasksByStatus()
   const stats = useTaskStats()
@@ -28,17 +26,6 @@ function HomePage() {
     setIsDark(!isDark)
   }
 
-  const handleOpenDetailed = (title?: string) => {
-    setInitialTitle(title || '')
-    setDetailedFormOpen(true)
-  }
-
-  const handleDetailedFormClose = (open: boolean) => {
-    setDetailedFormOpen(open)
-    if (!open) {
-      setInitialTitle('')
-    }
-  }
 
   const getGreeting = () => {
     const hour = new Date().getHours()
@@ -108,13 +95,6 @@ function HomePage() {
           </div>
 
           {/* PowerfulInput is now positioned at bottom-left of screen */}
-
-          <DetailedTaskForm
-            initialTitle={initialTitle}
-            open={detailedFormOpen}
-            onOpenChange={handleDetailedFormClose}
-            trigger={<div />}
-          />
         </header>
 
         <DragDropContext onDragEnd={handleDragEnd}>
@@ -132,7 +112,7 @@ function HomePage() {
       </div>
 
       {/* Powerful Command Input */}
-      <PowerfulInput onOpenDetailed={handleOpenDetailed} />
+      <PowerfulInput />
     </div>
   )
 }

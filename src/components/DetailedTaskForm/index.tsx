@@ -7,7 +7,7 @@ import {
   DialogClose,
 } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { FileText, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useTaskForm } from './use-task-form'
 import { TaskInfoPanel } from './TaskInfoPanel'
 import { TaskCommentsPanel } from './TaskCommentsPanel'
@@ -17,13 +17,26 @@ import { useTaskStore } from '@/store/todo-store'
 import { TaskContextMenu } from '../TaskContextMenu'
 
 /**
- * Детальная форма для создания и редактирования задач.
+ * Детальная форма для редактирования задач.
  * Поддерживает все поля задачи: название, описание, приоритет, story points, дату и теги.
  */
-export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOpen, onOpenChange }: DetailedTaskFormProps) {
+export function DetailedTaskForm({ task: taskProp, taskId, trigger, open: externalOpen, onOpenChange }: DetailedTaskFormProps) {
   const [internalOpen, setInternalOpen] = useState(false)
   const open = externalOpen !== undefined ? externalOpen : internalOpen
   const setOpen = onOpenChange || setInternalOpen
+
+  // Получаем задачу по ID из store, если передан taskId
+  const taskFromStore = useTaskStore((state) =>
+    taskId ? state.tasks.find(t => t.id === taskId) : undefined
+  )
+
+  // Используем задачу из пропсов или из store
+  const task = taskProp || taskFromStore
+
+  // Если задача не найдена, не рендерим форму
+  if (!task) {
+    return null
+  }
 
   const {
     formState,
@@ -34,7 +47,7 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
     priorities,
     updateField,
     resetForm,
-  } = useTaskForm(task, initialTitle)
+  } = useTaskForm(task)
 
   const columns = useTaskStore((s) => s.columns)
   const moveTask = useTaskStore((s) => s.moveTask)
@@ -48,18 +61,14 @@ export function DetailedTaskForm({ task, trigger, initialTitle, open: externalOp
     setOpen(false)
   }
 
-  const defaultTrigger = (
-    <Button variant="outline" size="sm">
-      <FileText className="h-4 w-4 mr-2" />
-      {TASK_FORM_TEXTS.addWithDetails}
-    </Button>
-  )
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || defaultTrigger}
-      </DialogTrigger>
+      {trigger && (
+        <DialogTrigger asChild>
+          {trigger}
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-7xl p-0" hideCloseButton>
         <div className="flex h-fit items-center justify-between p-4 border-b">
           <div className="flex items-center gap-2">

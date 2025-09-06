@@ -31,7 +31,7 @@ interface TaskFormErrors {
  * Хук для управления формой задачи.
  * Обеспечивает состояние, валидацию и автосохранение изменений.
  */
-export function useTaskForm(task?: Task, initialTitle?: string) {
+export function useTaskForm(task: Task) {
   const { addTask, editTask, tags, priorities, columns } = useTaskStore();
 
   const [formState, setFormState] = useState<TaskFormState>({
@@ -46,9 +46,8 @@ export function useTaskForm(task?: Task, initialTitle?: string) {
 
   const [errors, setErrors] = useState<TaskFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [createdTaskId, setCreatedTaskId] = useState<string | null>(null);
 
-  const isEditing = !!task;
+  const isEditing = true; // Always editing an existing task
   const debounceTimeoutRef = useRef<NodeJS.Timeout>();
   const initialFormStateRef = useRef<TaskFormState>();
 
@@ -56,71 +55,43 @@ export function useTaskForm(task?: Task, initialTitle?: string) {
    * Инициализирует форму при открытии или изменении задачи.
    */
   useEffect(() => {
-    let newFormState: TaskFormState;
-
-    if (task) {
-      newFormState = {
-        title: task.title,
-        description: task.description || '',
-        priority: task.priority || null,
-        storyPoints: task.storyPoints,
-        selectedTagIds: task.tagIds || [],
-        dueDate: dateToInputValue(task.dueDate),
-        status: task.status,
-      };
-      setCreatedTaskId(null);
-    } else if (initialTitle) {
-      newFormState = {
-        title: initialTitle,
-        description: '',
-        priority: null,
-        storyPoints: undefined,
-        selectedTagIds: [],
-        dueDate: '',
-        status: columns[0]?.id || 'todo',
-      };
-      setCreatedTaskId(null);
-    } else {
-      newFormState = {
-        title: '',
-        description: '',
-        priority: null,
-        storyPoints: undefined,
-        selectedTagIds: [],
-        dueDate: '',
-        status: columns[0]?.id || 'todo',
-      };
-      setCreatedTaskId(null);
-    }
+    const newFormState: TaskFormState = {
+      title: task.title,
+      description: task.description || '',
+      priority: task.priority || null,
+      storyPoints: task.storyPoints,
+      selectedTagIds: task.tagIds || [],
+      dueDate: dateToInputValue(task.dueDate),
+      status: task.status,
+    };
 
     setFormState(newFormState);
     initialFormStateRef.current = { ...newFormState };
     setErrors({});
-  }, [task, initialTitle, columns]);
+  }, [task]);
 
   /**
-   * Сбрасывает форму к начальному состоянию.
+   * Сбрасывает форму к исходному состоянию задачи.
    */
   const resetForm = useCallback(() => {
-    const newFormState = {
-      title: '',
-      description: '',
-      priority: null,
-      storyPoints: undefined,
-      selectedTagIds: [],
-      dueDate: '',
-      status: columns[0]?.id || 'todo',
+    const newFormState: TaskFormState = {
+      title: task.title,
+      description: task.description || '',
+      priority: task.priority || null,
+      storyPoints: task.storyPoints,
+      selectedTagIds: task.tagIds || [],
+      dueDate: dateToInputValue(task.dueDate),
+      status: task.status,
     };
     setFormState(newFormState);
     initialFormStateRef.current = { ...newFormState };
-    setCreatedTaskId(null);
     setErrors({});
 
     // Очищаем debounce timeout
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
-  }, [columns]);
+  }, [task]);
 
   /**
    * Валидирует форму и возвращает true, если форма валидна.
@@ -162,43 +133,19 @@ export function useTaskForm(task?: Task, initialTitle?: string) {
     try {
       const dueDateObj = formState.dueDate ? safeParseDate(formState.dueDate) : undefined;
 
-      if (isEditing && task) {
-        // Для существующей задачи - сохраняем изменения
-        editTask(task.id, {
-          title: formState.title.trim(),
-          description: formState.description || undefined,
-          tagIds: formState.selectedTagIds,
-          priority: formState.priority,
-          storyPoints: formState.storyPoints,
-          dueDate: dueDateObj,
-        });
-      } else if (!isEditing && formState.title.trim() && !createdTaskId) {
-        // Для новой задачи - создаем когда заполнено название
-        const newTaskId = addTask(
-          formState.title.trim(),
-          formState.description || undefined,
-          formState.selectedTagIds,
-          formState.priority,
-          formState.storyPoints,
-          dueDateObj,
-          formState.status
-        );
-        setCreatedTaskId(newTaskId);
-      } else if (!isEditing && createdTaskId) {
-        // Для уже созданной новой задачи - обновляем
-        editTask(createdTaskId, {
-          title: formState.title.trim(),
-          description: formState.description || undefined,
-          tagIds: formState.selectedTagIds,
-          priority: formState.priority,
-          storyPoints: formState.storyPoints,
-          dueDate: dueDateObj,
-        });
-      }
+      // Сохраняем изменения существующей задачи
+      editTask(task.id, {
+        title: formState.title.trim(),
+        description: formState.description || undefined,
+        tagIds: formState.selectedTagIds,
+        priority: formState.priority,
+        storyPoints: formState.storyPoints,
+        dueDate: dueDateObj,
+      });
     } catch (error) {
       console.error('Ошибка при автосохранении задачи:', error);
     }
-  }, [formState, isEditing, task, createdTaskId, validateForm, editTask, addTask]);
+  }, [formState, task, validateForm, editTask]);
 
   /**
    * Обновляет поле формы.
@@ -236,14 +183,7 @@ export function useTaskForm(task?: Task, initialTitle?: string) {
       clearTimeout(debounceTimeoutRef.current);
     }
 
-    // Для нового заголовка задачи - сразу сохраняем без debounce
-    if (!isEditing && !createdTaskId && formState.title.trim() &&
-        formState.title !== initialFormStateRef.current.title) {
-      autoSave();
-      return;
-    }
-
-    // Для остальных изменений - сохраняем с debounce 1 секунда
+    // Сохраняем изменения с debounce 1 секунда
     debounceTimeoutRef.current = setTimeout(() => {
       autoSave();
     }, 1000);
@@ -254,7 +194,7 @@ export function useTaskForm(task?: Task, initialTitle?: string) {
         clearTimeout(debounceTimeoutRef.current);
       }
     };
-  }, [formState, isEditing, createdTaskId, autoSave]);
+  }, [formState, autoSave]);
 
 
 
@@ -278,6 +218,5 @@ export function useTaskForm(task?: Task, initialTitle?: string) {
     updateField,
     resetForm,
     autoSave,
-    createdTaskId,
   };
 }

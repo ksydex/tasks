@@ -17,6 +17,6 @@ export interface CommandComponentProps {
 
 // Command execution context
 export interface CommandContext {
-  onOpenDetailed?: (initialTitle?: string) => void
+  onNavigateToTask?: (taskId: string) => void
   onClose: () => void
 }

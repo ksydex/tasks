@@ -29,7 +29,12 @@ export function AddTaskCommand({ onExecute, onClose }: CommandComponentProps) {
   }
 
   const handleDetailedCreate = () => {
-    onExecute('detailed-create', { taskName: taskName.trim() })
+    if (!taskName.trim()) return
+
+    const points = storyPoints ? parseInt(storyPoints) : undefined
+    const newTaskId = addTask(taskName.trim(), undefined, [], undefined, points)
+
+    onExecute('detailed-create', { taskId: newTaskId, taskName: taskName.trim() })
     onClose()
   }
 
@@ -74,6 +79,7 @@ export function AddTaskCommand({ onExecute, onClose }: CommandComponentProps) {
         size="sm"
         variant="outline"
         onClick={handleDetailedCreate}
+        disabled={!taskName.trim()}
         className="h-8 px-3"
       >
         <FileText className="h-4 w-4 mr-1" />

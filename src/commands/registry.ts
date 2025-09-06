@@ -15,7 +15,7 @@ export const createCommands = (context: CommandContext): BaseCommand[] => {
       component: (props) => {
         const wrappedOnExecute = (action, data) => {
           if (action === 'detailed-create') {
-            context.onOpenDetailed?.(data?.taskName || '')
+            context.onNavigateToTask?.(data?.taskId)
           }
           props.onExecute(action, data)
         }

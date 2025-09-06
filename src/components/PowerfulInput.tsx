@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast'
 import { Search, Plus, FileText, HelpCircle, ChevronDown, ArrowRight, Check, Phone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createCommands, type BaseCommand } from '@/commands'
+import { useSearchParams } from 'react-router-dom'
 
 // Command state interface
 interface CommandState {
@@ -17,22 +18,29 @@ interface CommandState {
 }
 
 interface PowerfulInputProps {
-  onOpenDetailed?: (initialTitle?: string) => void
+  // No props needed anymore - we'll use URL navigation
 }
 
-export function PowerfulInput({ onOpenDetailed }: PowerfulInputProps) {
+export function PowerfulInput({}: PowerfulInputProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [commandPopoverOpen, setCommandPopoverOpen] = useState(false)
   const [commandsModalOpen, setCommandsModalOpen] = useState(false)
   const [commandState, setCommandState] = useState<CommandState>({
     selectedCommand: null
   })
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const { toast } = useToast()
 
+  const handleNavigateToTask = (taskId: string) => {
+    const newParams = new URLSearchParams(searchParams)
+    newParams.set('taskId', taskId)
+    setSearchParams(newParams)
+  }
+
   // Command handlers - easily extensible
   const commands = createCommands({
-    onOpenDetailed,
+    onNavigateToTask: handleNavigateToTask,
     onClose: () => {
       setIsOpen(false)
       setCommandPopoverOpen(false)
