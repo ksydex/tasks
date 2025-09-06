@@ -15,6 +15,7 @@ import { TASK_FORM_TEXTS } from './constants'
 import type { DetailedTaskFormProps } from './types'
 import { useTaskStore } from '@/store/todo-store'
 import { TaskContextMenu } from '../TaskContextMenu'
+import { TaskCheck } from '../TaskCheck'
 import { DialogTitle } from '../ui'
 
 /**
@@ -42,7 +43,6 @@ export function DetailedTaskForm({ task: taskProp, taskId, trigger, open: extern
   const {
     formState,
     errors,
-    isSubmitting,
     isEditing,
     tagOptions,
     priorities,
@@ -82,6 +82,12 @@ export function DetailedTaskForm({ task: taskProp, taskId, trigger, open: extern
 
         <div className="flex h-fit items-center justify-between p-4 border-b">
           <div className="flex items-center gap-2">
+            <TaskCheck
+              checked={formState.isDone}
+              onCheckedChange={() => updateField('isDone', !formState.isDone)}
+              size="md"
+              className="mr-1"
+            />
             <Select
               value={formState.status}
               onValueChange={(value) => {
@@ -119,8 +125,6 @@ export function DetailedTaskForm({ task: taskProp, taskId, trigger, open: extern
           <TaskInfoPanel
             formState={formState}
             errors={errors}
-            isSubmitting={isSubmitting}
-            isEditing={isEditing}
             task={task}
             tagOptions={tagOptions}
             priorities={priorities}

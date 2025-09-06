@@ -24,6 +24,7 @@ export const TASK_FORM_TEXTS = {
   tagsPlaceholder: 'Выберите или найдите теги...',
   tagsSearchPlaceholder: 'Поиск тегов...',
   tagsEmptyText: 'Теги не найдены.',
+  completed: 'Завершена',
 
   // Кнопки
   cancel: 'Отмена',
@@ -33,6 +34,7 @@ export const TASK_FORM_TEXTS = {
   // Описания
   dueDateDescription: 'Необязательно. Установите дедлайн для этой задачи.',
   createdInfo: 'Создано',
+  completedInfo: 'Завершено',
 
   // Валидация
   titleRequired: 'Название задачи обязательно для заполнения',

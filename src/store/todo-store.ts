@@ -33,6 +33,8 @@ export interface Task {
   storyPoints?: number
   dueDate?: Date
   createdAt: Date
+  isDone: boolean
+  doneDate?: Date
 }
 
 interface TaskState {
@@ -44,10 +46,12 @@ interface TaskState {
   // Task operations
   addTask: (title: string, description?: string, tagIds?: string[], priority?: Priority | null, storyPoints?: number, dueDate?: Date, status?: string) => string
   deleteTask: (id: string) => void
-  editTask: (id: string, updates: Partial<Pick<Task, 'title' | 'description' | 'tagIds' | 'priority' | 'storyPoints' | 'dueDate'>>) => void
+  editTask: (id: string, updates: Partial<Pick<Task, 'title' | 'description' | 'tagIds' | 'priority' | 'storyPoints' | 'dueDate' | 'isDone'>>) => void
   moveTask: (id: string, status: string) => void
   moveTaskToPosition: (taskId: string, sourceColumnId: string, destColumnId: string, sourceIndex: number, destIndex: number) => void
   reorderTasks: (sourceIndex: number, destIndex: number, status: string) => void
+  toggleTaskCompletion: (id: string) => void
+  setTaskCompletion: (id: string, isDone: boolean) => void
 
   // Column operations
   addColumn: (title: string, icon: string, color: string) => void
@@ -106,6 +110,7 @@ export const useTaskStore = create<TaskState>()(
           storyPoints,
           dueDate,
           createdAt: new Date(),
+          isDone: false,
         }
 
         set((state) => ({
@@ -121,7 +126,7 @@ export const useTaskStore = create<TaskState>()(
         }))
       },
 
-      editTask: (id: string, updates: Partial<Pick<Task, 'title' | 'description' | 'tagIds' | 'priority' | 'storyPoints' | 'dueDate'>>) => {
+      editTask: (id: string, updates: Partial<Pick<Task, 'title' | 'description' | 'tagIds' | 'priority' | 'storyPoints' | 'dueDate' | 'isDone' | 'doneDate'>>) => {
         if (updates.title && !updates.title.trim()) return
 
         set((state) => ({
@@ -134,7 +139,15 @@ export const useTaskStore = create<TaskState>()(
               tagIds: updates.tagIds !== undefined ? updates.tagIds : task.tagIds,
               priority: updates.priority !== undefined ? updates.priority : task.priority,
               storyPoints: updates.storyPoints !== undefined ? updates.storyPoints : task.storyPoints,
-              dueDate: updates.dueDate !== undefined ? updates.dueDate : task.dueDate
+              dueDate: updates.dueDate !== undefined ? updates.dueDate : task.dueDate,
+              isDone: updates.isDone !== undefined ? updates.isDone : task.isDone,
+              doneDate: updates.doneDate !== undefined
+                ? updates.doneDate
+                : (updates.isDone === true && task.isDone === false)
+                  ? new Date()
+                  : (updates.isDone === false)
+                    ? undefined
+                    : task.doneDate
             } : task
           )
         }))
@@ -216,6 +229,22 @@ export const useTaskStore = create<TaskState>()(
             tasks: [...otherTasks, ...reorderedTasks]
           }
         })
+      },
+
+      toggleTaskCompletion: (id: string) => {
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === id ? { ...task, isDone: !task.isDone } : task
+          )
+        }))
+      },
+
+      setTaskCompletion: (id: string, isDone: boolean) => {
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === id ? { ...task, isDone } : task
+          )
+        }))
       },
 
       // Column operations
@@ -312,6 +341,27 @@ export const useTaskStore = create<TaskState>()(
     }),
     {
       name: 'task-storage',
+      version: 1,
+      migrate: (persistedState: any, version: number) => {
+        if (version === 0) {
+          // Migration for adding isDone and doneDate fields to existing tasks
+          const tasks = persistedState.tasks || []
+          const migratedTasks = tasks.map((task: any) => {
+            const isDone = task.isDone !== undefined ? task.isDone : (task.status === 'done')
+            return {
+              ...task,
+              isDone,
+              doneDate: task.doneDate || (isDone ? new Date(task.createdAt) : undefined)
+            }
+          })
+
+          return {
+            ...persistedState,
+            tasks: migratedTasks
+          }
+        }
+        return persistedState
+      }
     }
   )
 )

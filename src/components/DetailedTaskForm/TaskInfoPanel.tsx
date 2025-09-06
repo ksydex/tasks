@@ -1,9 +1,9 @@
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Separator } from '@/components/ui/separator'
 import { MultiSelect } from '@/components/ui/multi-select'
-import { CalendarDays } from 'lucide-react'
+import { CalendarDays, Check } from 'lucide-react'
+import { TaskCheck } from '../TaskCheck'
 import { FormFieldWrapper, PrioritySelector, DatePickerField } from '@/components/ui/composites'
 import { TASK_FORM_TEXTS, FORM_VALIDATION, FORM_CONFIG } from './constants'
 import type { Task, PriorityLevel } from '@/store/todo-store'
@@ -16,6 +16,7 @@ interface TaskFormState {
   storyPoints: number | undefined
   selectedTagIds: string[]
   dueDate: string
+  isDone: boolean
 }
 
 interface TaskFormErrors {
@@ -28,8 +29,6 @@ interface TaskFormErrors {
 interface TaskInfoPanelProps {
   formState: TaskFormState
   errors: TaskFormErrors
-  isSubmitting: boolean
-  isEditing: boolean
   task?: Task
   tagOptions: Array<{ label: string; value: string }>
   priorities: PriorityLevel[]
@@ -43,8 +42,6 @@ interface TaskInfoPanelProps {
 export function TaskInfoPanel({
   formState,
   errors,
-  isSubmitting,
-  isEditing,
   task,
   tagOptions,
   priorities,
@@ -70,6 +67,7 @@ export function TaskInfoPanel({
               className="text-lg font-medium"
             />
           </FormFieldWrapper>
+
 
           <FormFieldWrapper
             id="description"
@@ -142,9 +140,17 @@ export function TaskInfoPanel({
       </div>
 
       <Separator />
-      <div className="flex p-4 items-center gap-2 text-sm text-muted-foreground">
-        <CalendarDays className="h-4 w-4" />
-        {TASK_FORM_TEXTS.createdInfo} {new Date(task.createdAt).toLocaleDateString()}
+      <div className="flex p-4 items-center justify-between text-sm text-muted-foreground">
+        <div className="flex items-center gap-2">
+          <CalendarDays className="h-4 w-4" />
+          {TASK_FORM_TEXTS.createdInfo} {new Date(task.createdAt).toLocaleDateString()}
+        </div>
+        {task.doneDate && (
+          <div className="flex items-center gap-2">
+            <Check className="h-4 w-4 text-green-600" />
+            {TASK_FORM_TEXTS.completedInfo} {new Date(task.doneDate).toLocaleDateString()}
+          </div>
+        )}
       </div>
 
     </div>

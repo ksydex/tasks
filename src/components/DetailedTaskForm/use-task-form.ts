@@ -15,6 +15,7 @@ interface TaskFormState {
   selectedTagIds: string[];
   dueDate: string;
   status: string;
+  isDone: boolean;
 }
 
 /**
@@ -32,7 +33,7 @@ interface TaskFormErrors {
  * Обеспечивает состояние, валидацию и автосохранение изменений.
  */
 export function useTaskForm(task: Task) {
-  const { addTask, editTask, tags, priorities, columns } = useTaskStore();
+  const { editTask, tags, priorities, columns } = useTaskStore();
 
   const [formState, setFormState] = useState<TaskFormState>({
     title: '',
@@ -42,10 +43,10 @@ export function useTaskForm(task: Task) {
     selectedTagIds: [],
     dueDate: '',
     status: columns[0]?.id || 'todo',
+    isDone: false,
   });
 
   const [errors, setErrors] = useState<TaskFormErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isEditing = true; // Always editing an existing task
   const debounceTimeoutRef = useRef<NodeJS.Timeout>();
@@ -63,6 +64,7 @@ export function useTaskForm(task: Task) {
       selectedTagIds: task.tagIds || [],
       dueDate: dateToInputValue(task.dueDate),
       status: task.status,
+      isDone: task.isDone,
     };
 
     setFormState(newFormState);
@@ -82,6 +84,7 @@ export function useTaskForm(task: Task) {
       selectedTagIds: task.tagIds || [],
       dueDate: dateToInputValue(task.dueDate),
       status: task.status,
+      isDone: task.isDone,
     };
     setFormState(newFormState);
     initialFormStateRef.current = { ...newFormState };
@@ -141,6 +144,7 @@ export function useTaskForm(task: Task) {
         priority: formState.priority,
         storyPoints: formState.storyPoints,
         dueDate: dueDateObj,
+        isDone: formState.isDone,
       });
     } catch (error) {
       console.error('Ошибка при автосохранении задачи:', error);
@@ -211,7 +215,6 @@ export function useTaskForm(task: Task) {
   return {
     formState,
     errors,
-    isSubmitting,
     isEditing,
     tagOptions,
     priorities,

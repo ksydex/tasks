@@ -3,10 +3,10 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tag } from '@/components/ui/primitives'
 import { DueStatus } from '@/components/ui/composites'
-import { Clock, Calendar } from 'lucide-react'
 import { Draggable } from '@hello-pangea/dnd'
 import { useTaskStore } from '@/store/todo-store'
 import { TaskContextMenu } from './TaskContextMenu'
+import { TaskCheck } from './TaskCheck'
 import { useSearchParams } from 'react-router-dom'
 import type { Task } from '@/store/todo-store'
 
@@ -16,7 +16,7 @@ interface TaskCardProps {
 }
 
 const TaskCard = memo(({ task, index }: TaskCardProps) => {
-  const { tags, priorities } = useTaskStore()
+  const { tags, priorities, toggleTaskCompletion } = useTaskStore()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const taskTags = useMemo(() =>
@@ -29,19 +29,13 @@ const TaskCard = memo(({ task, index }: TaskCardProps) => {
   )
 
 
-  const formatDate = useMemo(() => (date: Date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: new Date(date).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
-    })
-  }, [])
 
   const handleCardClick = () => {
     const newParams = new URLSearchParams(searchParams)
     newParams.set('taskId', task.id)
     setSearchParams(newParams)
   }
+
 
 
 
@@ -57,15 +51,23 @@ const TaskCard = memo(({ task, index }: TaskCardProps) => {
             <Card
               hover="lift"
               padding="sm"
-              className="group cursor-pointer"
+              className={`group cursor-pointer ${task.isDone ? 'opacity-75' : ''}`}
               {...provided.dragHandleProps}
               onClick={handleCardClick}
             >
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-2">
+                    <TaskCheck
+                      checked={task.isDone}
+                      onCheckedChange={() => toggleTaskCompletion(task.id)}
+                      size="sm"
+                      className="mt-0.5"
+                    />
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-sm leading-snug text-card-foreground group-hover:text-foreground transition-colors">
+                      <h3 className={`font-medium text-sm leading-snug text-card-foreground group-hover:text-foreground transition-colors ${
+                        task.isDone ? 'line-through text-muted-foreground' : ''
+                      }`}>
                         {task.title}
                       </h3>
                       {task.description && (
