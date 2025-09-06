@@ -16,13 +16,18 @@ interface TaskCardProps {
 }
 
 const TaskCard = memo(({ task, index }: TaskCardProps) => {
-  const { tags } = useTaskStore()
+  const { tags, priorities } = useTaskStore()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const taskTags = useMemo(() =>
     tags.filter(tag => task.tagIds?.includes(tag.id)),
     [tags, task.tagIds]
   )
+  const taskPriority = useMemo(() =>
+    priorities.find(p => p.id === task.priority),
+    [priorities, task.priority]
+  )
+
 
   const formatDate = useMemo(() => (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -91,15 +96,27 @@ const TaskCard = memo(({ task, index }: TaskCardProps) => {
                   )}
 
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Calendar className="h-3 w-3" />
-                      <span>{formatDate(task.createdAt)}</span>
+                    <div className="flex items-center gap-2 text-xs">
+                      {taskPriority && (
+                        <Badge
+                          variant="secondary"
+                          className="gap-1"
+                          style={{
+                            backgroundColor: taskPriority.color + '20',
+                            color: taskPriority.color,
+                            borderColor: taskPriority.color
+                          }}
+                        >
+                          {taskPriority.icon && <span>{taskPriority.icon}</span>}
+                          {taskPriority.name}
+                        </Badge>
+                      )}
                     </div>
 
                     {task.dueDate ? (
-                      <DueStatus dueDate={task.dueDate} priority={task.priority || null} showPriority />
+                      <DueStatus dueDate={task.dueDate} />
                     ) : (
-                      <DueStatus priority={task.priority || null} showPriority />
+                      <DueStatus />
                     )}
                   </div>
                 </div>

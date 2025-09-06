@@ -4,16 +4,14 @@ import { Clock, AlertTriangle } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { componentBorderRadius } from "@/lib/style-utils"
-import { getDueDateStatus, type DueDateStatus, type Priority } from "@/lib/status-colors"
+import { getDueDateStatus, type DueDateStatus } from "@/lib/status-colors"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 export interface DueStatusProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof dueStatusVariants> {
   dueDate?: Date
-  priority?: Priority | null
   showIcon?: boolean
-  showPriority?: boolean
   size?: 'sm' | 'md' | 'lg'
 }
 
@@ -44,9 +42,7 @@ const DueStatus = React.forwardRef<HTMLDivElement, DueStatusProps>(
   ({
     className,
     dueDate,
-    priority,
     showIcon = true,
-    showPriority = false,
     size = "md",
     children,
     ...props
@@ -58,16 +54,6 @@ const DueStatus = React.forwardRef<HTMLDivElement, DueStatusProps>(
       if (!dueDate) return null
       if (status === "overdue") return <AlertTriangle className="h-3 w-3" />
       return <Clock className="h-3 w-3" />
-    }
-
-    const getPriorityText = () => {
-      if (!showPriority || !priority || typeof priority !== 'string') return null
-      try {
-        return priority.charAt(0).toUpperCase() + priority.slice(1)
-      } catch (error) {
-        console.warn('Error formatting priority text:', error)
-        return null
-      }
     }
 
     const formatDate = (date: Date) => {
@@ -107,11 +93,10 @@ const DueStatus = React.forwardRef<HTMLDivElement, DueStatusProps>(
       return diffDays <= 3 && diffDays >= -3 // Within 4 days (including overdue)
     }
 
-    const hasPriority = !!(showPriority && priority && typeof priority === 'string')
     const displayText = (children as React.ReactNode) ?? (dueDate ? formatRelativeTime(dueDate) : null)
 
     // If no due date, no priority to show, and no custom children provided — render nothing
-    if (!dueDate && !hasPriority && !children) {
+    if (!dueDate && !children) {
       return null
     }
     const showTooltip = dueDate && shouldShowRelativeTime(dueDate)
@@ -131,12 +116,6 @@ const DueStatus = React.forwardRef<HTMLDivElement, DueStatusProps>(
           <span>
             {displayText}
           </span>
-        )}
-        {getPriorityText() && (
-          <>
-            {displayText && <span className="text-muted-foreground">•</span>}
-            <span className="font-medium">{getPriorityText()}</span>
-          </>
         )}
       </div>
     )
