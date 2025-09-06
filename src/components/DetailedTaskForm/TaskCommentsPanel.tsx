@@ -29,7 +29,7 @@ export function TaskCommentsPanel() {
           </TabsList>
 
           <TabsContent value="comments" className="mt-4 space-y-4">
-            <Card>
+            <Card className="p-4">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <MessageCircle className="h-4 w-4" />

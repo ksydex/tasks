@@ -15,6 +15,7 @@ import { TASK_FORM_TEXTS } from './constants'
 import type { DetailedTaskFormProps } from './types'
 import { useTaskStore } from '@/store/todo-store'
 import { TaskContextMenu } from '../TaskContextMenu'
+import { DialogTitle } from '../ui'
 
 /**
  * Детальная форма для редактирования задач.
@@ -69,7 +70,16 @@ export function DetailedTaskForm({ task: taskProp, taskId, trigger, open: extern
           {trigger}
         </DialogTrigger>
       )}
+
       <DialogContent className="max-w-7xl p-0" hideCloseButton>
+        {/* Для обхода ошибки в консоли */}
+        <div className="hidden">
+          <DialogTitle>
+            {TASK_FORM_TEXTS.editTitle}
+          </DialogTitle>
+        </div>
+        {/* --------------------------- */}
+
         <div className="flex h-fit items-center justify-between p-4 border-b">
           <div className="flex items-center gap-2">
             <Select
