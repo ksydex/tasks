@@ -1,20 +1,21 @@
 import { useState, useEffect } from 'react'
-import { DragDropContext, DropResult } from '@hello-pangea/dnd'
 import { PowerfulInput } from '@/components/PowerfulInput'
-import { KanbanColumn } from '@/components/KanbanColumn'
 import { TaskStats } from '@/components/TaskStats'
 import { SettingsDialog } from '@/components/SettingsDialog'
-import { useTaskStore, useTasksByStatus, useTaskStats } from '@/store/todo-store'
+import { TabPane, type ViewType } from '@/components/TabPane'
+import { BoardView } from '@/components/BoardView'
+import { ListView } from '@/components/ListView'
+import { useTaskStore, useTasksByStatus } from '@/store/todo-store'
 import { Button } from '@/components/ui/button'
 import { Moon, Sun, Kanban, Palette } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 
 function HomePage() {
   const [isDark, setIsDark] = useState(false)
+  const [activeView, setActiveView] = useState<ViewType>('board')
   const [searchParams, setSearchParams] = useSearchParams()
-  const { columns, moveTask, moveTaskToPosition, reorderTasks } = useTaskStore()
+  const { tasks } = useTaskStore()
   const tasksByStatus = useTasksByStatus()
-  const stats = useTaskStats()
 
   useEffect(() => {
     const isDarkMode = document.documentElement.classList.contains('dark')
@@ -26,7 +27,6 @@ function HomePage() {
     setIsDark(!isDark)
   }
 
-
   const getGreeting = () => {
     const hour = new Date().getHours()
     if (hour < 12) return 'Good morning'
@@ -34,26 +34,8 @@ function HomePage() {
     return 'Good evening'
   }
 
-  const handleDragEnd = (result: DropResult) => {
-    const { destination, source } = result
-
-    if (!destination) return
-
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    ) {
-      return
-    }
-
-    // Use the new moveTaskToPosition for both cross-column and same-column moves
-    moveTaskToPosition(
-      result.draggableId,
-      source.droppableId,
-      destination.droppableId,
-      source.index,
-      destination.index
-    )
+  const handleViewChange = (view: ViewType) => {
+    setActiveView(view)
   }
 
   return (
@@ -97,18 +79,17 @@ function HomePage() {
           {/* PowerfulInput is now positioned at bottom-left of screen */}
         </header>
 
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <div className={`grid gap-6 ${columns.length === 1 ? 'grid-cols-1' : columns.length === 2 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 lg:grid-cols-3'}`}>
-            {columns.map((column) => (
-              <KanbanColumn
-                key={column.id}
-                column={column}
-                tasks={tasksByStatus[column.id] || []}
-                count={stats[column.id] || 0}
-              />
-            ))}
-          </div>
-        </DragDropContext>
+        <TabPane
+          activeView={activeView}
+          onViewChange={handleViewChange}
+          boardContent={<BoardView />}
+          listContent={
+            <ListView
+              tasks={tasks}
+              emptyMessage="No tasks found. Create your first task to get started!"
+            />
+          }
+        />
       </div>
 
       {/* Powerful Command Input */}
