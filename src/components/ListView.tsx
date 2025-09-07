@@ -82,6 +82,31 @@ const TaskTableRow = memo(({
       </TableCell>
 
       <TableCell>
+        {(() => {
+          const { columns } = useTaskStore.getState()
+          const column = columns.find(col => col.id === task.status)
+          return column ? (
+            <Badge
+              variant="secondary"
+              className="gap-1 h-5 text-xs w-max"
+              style={{
+                backgroundColor: column.color + '20',
+                color: column.color,
+                borderColor: column.color
+              }}
+            >
+              {column.icon && <span>{column.icon}</span>}
+              {column.title}
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="gap-1 h-5 text-xs w-max">
+              {task.status}
+            </Badge>
+          )
+        })()}
+      </TableCell>
+
+      <TableCell>
         {taskPriority && (
           <Badge
             variant="secondary"
@@ -209,6 +234,7 @@ const ListView = memo(({
               <span className="sr-only">Status</span>
             </TableHead>
             <TableHead className="max-w-md min-w-[200px]">Task</TableHead>
+            <TableHead className="w-fit">Column</TableHead>
             <TableHead className="w-fit">Priority</TableHead>
             <TableHead className="w-fit">Tags</TableHead>
             <TableHead className="w-fit">Due Date</TableHead>
