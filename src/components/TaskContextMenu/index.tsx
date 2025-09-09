@@ -1,26 +1,25 @@
-import React from 'react';
-import { MoreHorizontal, Trash2 } from 'lucide-react';
+import React from 'react'
+import { MoreHorizontal, Trash2 } from 'lucide-react'
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
-} from '@/components/ui/context-menu';
+} from '@/components/ui/context-menu'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { useTaskStore } from '@/store/todo-store';
-import { useToast } from '@/hooks/use-toast';
+} from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
+import { useTaskContextMenu } from './use-task-context-menu'
 
 interface TaskContextMenuProps {
-  taskId: string;
-  children?: React.ReactNode;
-  variant?: 'context' | 'dropdown';
-  onDelete?: () => void;
+  taskId: string
+  children?: React.ReactNode
+  variant?: 'context' | 'dropdown'
+  onDelete?: () => void
 }
 
 export function TaskContextMenu({
@@ -29,21 +28,7 @@ export function TaskContextMenu({
   variant = 'context',
   onDelete
 }: TaskContextMenuProps) {
-  const { deleteTask, tasks } = useTaskStore();
-  const { toast } = useToast();
-
-  const task = tasks.find(t => t.id === taskId);
-
-  const handleDelete = () => {
-    if (task) {
-      deleteTask(taskId);
-      toast({
-        title: "Task deleted",
-        description: `"${task.title}" has been deleted.`,
-      });
-      onDelete?.();
-    }
-  };
+  const { handleDelete } = useTaskContextMenu({ taskId, onDelete })
 
   const menuItems = (
     <DropdownMenuItem
@@ -53,7 +38,7 @@ export function TaskContextMenu({
       <Trash2 className="w-4 h-4 mr-2" />
       Delete task
     </DropdownMenuItem>
-  );
+  )
 
   if (variant === 'dropdown') {
     return (
@@ -72,7 +57,7 @@ export function TaskContextMenu({
           {menuItems}
         </DropdownMenuContent>
       </DropdownMenu>
-    );
+    )
   }
 
   return (
@@ -90,5 +75,7 @@ export function TaskContextMenu({
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
-  );
+  )
 }
+
+export default TaskContextMenu

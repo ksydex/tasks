@@ -46,6 +46,11 @@ This project follows a pattern of separating component logic from presentation u
 - `BoardView/` - Drag-and-drop logic and data fetching separated
 - `HomePage/` - Page-level state management (theme, view) separated
 - `TaskStats/` - Calculation logic and store connections extracted
+- `PowerfulInput/` - Command state management and keyboard handling logic separated
+- `AddTaskForm/` - Form state and task creation logic extracted
+- `TabPane/` - View persistence and state synchronization logic separated
+- `TaskCard/` - Hover effects, drag state, and task data fetching separated
+- `TaskContextMenu/` - Task deletion logic and toast notifications extracted
 
 ## Critical Notes
 - Drag and drop requires @hello-pangea/dnd package for React 18 compatibility
@@ -85,10 +90,22 @@ This project follows a pattern of separating component logic from presentation u
 │   ├── DetailedTaskForm/   # Full task editor (already follows pattern)
 │   │   ├── index.tsx       # Task form component
 │   │   └── use-task-form.ts # Form state management and validation
-│   ├── AddTaskForm.tsx     # Simple one-field add form for task names only
-│   ├── TaskCard.tsx        # Draggable task card with click-to-edit, tags display, and right-click context menu
-│   ├── KanbanColumn.tsx    # Droppable column with dynamic headers and custom styling
-│   └── TaskContextMenu.tsx # Reusable context menu for task actions (right-click & dropdown variants)
+│   ├── PowerfulInput/      # Command palette with keyboard shortcuts (refactored)
+│   │   ├── index.tsx       # Presentational command input component
+│   │   └── use-powerful-input.ts # Command state and keyboard handling logic
+│   ├── AddTaskForm/        # Simple task creation form (refactored)
+│   │   ├── index.tsx       # Presentational form component
+│   │   └── use-add-task-form.ts # Form state and task creation logic
+│   ├── TabPane/            # View switching tabs with persistence (refactored)
+│   │   ├── index.tsx       # Presentational tabs component
+│   │   └── use-tab-pane.ts # View state and localStorage persistence logic
+│   ├── TaskCard/           # Draggable task card with interactions (refactored)
+│   │   ├── index.tsx       # Presentational card component
+│   │   └── use-task-card.ts # Hover effects, drag state, and task data logic
+│   ├── TaskContextMenu/    # Context menu for task actions (refactored)
+│   │   ├── index.tsx       # Presentational menu component
+│   │   └── use-task-context-menu.ts # Task deletion and notification logic
+│   └── KanbanColumn.tsx    # Droppable column with dynamic headers and custom styling
 │
 ├── store/          # State management
 │   └── todo-store.ts # Enhanced store with columns, tags, and drag operations

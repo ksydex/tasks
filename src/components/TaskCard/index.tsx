@@ -1,13 +1,12 @@
-import React, { memo, useMemo, useState, useRef, useEffect } from 'react'
+import React, { memo } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tag } from '@/components/ui/primitives'
 import { DueStatus } from '@/components/ui/composites'
 import { Draggable } from '@hello-pangea/dnd'
-import { useTaskStore } from '@/store/todo-store'
-import { TaskContextMenu } from './TaskContextMenu'
-import { TaskCheck } from './TaskCheck'
-import { useSearchParams } from 'react-router-dom'
+import { TaskContextMenu } from '../TaskContextMenu'
+import { TaskCheck } from '../TaskCheck'
+import { useTaskCard } from './use-task-card'
 import type { Task } from '@/store/todo-store'
 
 interface TaskCardProps {
@@ -16,59 +15,16 @@ interface TaskCardProps {
 }
 
 const TaskCard = memo(({ task, index }: TaskCardProps) => {
-  const { tags, priorities, toggleTaskCompletion } = useTaskStore()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const [showCheck, setShowCheck] = useState(task.isDone)
-  const [isHovered, setIsHovered] = useState(false)
-  const hoverTimeoutRef = useRef<NodeJS.Timeout>()
-
-  const taskTags = useMemo(() =>
-    tags.filter(tag => task.tagIds?.includes(tag.id)),
-    [tags, task.tagIds]
-  )
-  const taskPriority = useMemo(() =>
-    priorities.find(p => p.id === task.priority),
-    [priorities, task.priority]
-  )
-
-  // Handle hover state with delay
-  useEffect(() => {
-    if (isHovered && !task.isDone) {
-      hoverTimeoutRef.current = setTimeout(() => {
-        setShowCheck(true)
-      }, 500) // 0.5 second delay
-    } else if (!isHovered && !task.isDone) {
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current)
-      }
-      setShowCheck(false)
-    }
-
-    return () => {
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current)
-      }
-    }
-  }, [isHovered, task.isDone])
-
-  // Update showCheck when task.isDone changes
-  useEffect(() => {
-    setShowCheck(task.isDone)
-  }, [task.isDone])
-
-  const handleMouseEnter = () => setIsHovered(true)
-  const handleMouseLeave = () => setIsHovered(false)
-
-
-
-  const handleCardClick = () => {
-    const newParams = new URLSearchParams(searchParams)
-    newParams.set('taskId', task.id)
-    setSearchParams(newParams)
-  }
-
-
-
+  const {
+    taskTags,
+    taskPriority,
+    showCheck,
+    isHovered,
+    handleMouseEnter,
+    handleMouseLeave,
+    handleCardClick,
+    handleToggleCompletion,
+  } = useTaskCard({ task })
 
   return (
     <Draggable draggableId={task.id} index={index}>
@@ -91,7 +47,6 @@ const TaskCard = memo(({ task, index }: TaskCardProps) => {
               onClick={handleCardClick}
             >
               <CardContent>
-
                 <div className="space-y-3">
                   <div className="flex items-start">
                     <div
@@ -101,7 +56,7 @@ const TaskCard = memo(({ task, index }: TaskCardProps) => {
                     >
                       <TaskCheck
                         checked={task.isDone}
-                        onCheckedChange={() => toggleTaskCompletion(task.id)}
+                        onCheckedChange={handleToggleCompletion}
                         size="sm"
                         className="mt-0.5 flex-shrink-0"
                       />
@@ -180,3 +135,4 @@ const TaskCard = memo(({ task, index }: TaskCardProps) => {
 TaskCard.displayName = 'TaskCard'
 
 export { TaskCard }
+export default TaskCard

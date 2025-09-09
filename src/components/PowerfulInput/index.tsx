@@ -1,107 +1,46 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useToast } from '@/hooks/use-toast'
-import { Search, Plus, FileText, HelpCircle, ChevronDown, ArrowRight, Check, Phone } from 'lucide-react'
+import { Search, ChevronDown, ArrowRight, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { createCommands, type BaseCommand } from '@/commands'
-import { useSearchParams } from 'react-router-dom'
-
-// Command state interface
-interface CommandState {
-  selectedCommand: BaseCommand | null
-}
+import { usePowerfulInput } from './use-powerful-input'
+import type { BaseCommand } from '@/commands'
 
 interface PowerfulInputProps {
   // No props needed anymore - we'll use URL navigation
 }
 
+// Render command component helper
+function renderCommandComponent(command: BaseCommand, onExecute: (action: string, data?: any) => void, onClose: () => void) {
+  const CommandComponent = command.component
+  return (
+    <CommandComponent
+      onExecute={onExecute}
+      onClose={onClose}
+    />
+  )
+}
+
 export function PowerfulInput({}: PowerfulInputProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [commandPopoverOpen, setCommandPopoverOpen] = useState(false)
-  const [commandsModalOpen, setCommandsModalOpen] = useState(false)
-  const [commandState, setCommandState] = useState<CommandState>({
-    selectedCommand: null
-  })
-  const [searchParams, setSearchParams] = useSearchParams()
-
-  const { toast } = useToast()
-
-  const handleNavigateToTask = (taskId: string) => {
-    const newParams = new URLSearchParams(searchParams)
-    newParams.set('taskId', taskId)
-    setSearchParams(newParams)
-  }
-
-  // Command handlers - easily extensible
-  const commands = createCommands({
-    onNavigateToTask: handleNavigateToTask,
-    onClose: () => {
-      setIsOpen(false)
-      setCommandPopoverOpen(false)
-      setCommandState({ selectedCommand: null })
-    }
-  })
-
-      // Handle keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault()
-        setIsOpen(true)
-        setCommandPopoverOpen(true)
-        // Reset state when opening
-        setCommandState({
-          selectedCommand: null
-        })
-      }
-
-      if (e.key === 'Escape') {
-        setIsOpen(false)
-        setCommandPopoverOpen(false)
-        setCommandState({
-          selectedCommand: null
-        })
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [])
-
-    // Handle command selection
-  const handleCommandSelect = (command: BaseCommand) => {
-    setCommandState({
-      selectedCommand: command
-    })
-    setCommandPopoverOpen(false)
-  }
-
-  // Handle command execution
-  const handleCommandExecute = (action: string, data?: any) => {
-    // Command components handle their own execution logic
-    console.log('Command executed:', action, data)
-  }
-
-  // Render command component
-  const renderCommandComponent = (command: BaseCommand) => {
-    const CommandComponent = command.component
-    return (
-      <CommandComponent
-        onExecute={handleCommandExecute}
-        onClose={() => {
-          setIsOpen(false)
-          setCommandPopoverOpen(false)
-          setCommandState({ selectedCommand: null })
-        }}
-      />
-    )
-  }
+  const {
+    isOpen,
+    commandPopoverOpen,
+    commandsModalOpen,
+    commandState,
+    commands,
+    setCommandPopoverOpen,
+    setCommandsModalOpen,
+    handleCommandSelect,
+    handleCommandExecute,
+    handleClose,
+    openInput,
+    closeInput,
+    openCommandsModal,
+    closeCommandsModal,
+  } = usePowerfulInput()
 
   return (
     <>
@@ -109,11 +48,11 @@ export function PowerfulInput({}: PowerfulInputProps) {
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
-          onClick={() => setIsOpen(false)}
+          onClick={closeInput}
         />
       )}
 
-            {/* Command Input */}
+      {/* Command Input */}
       <div className={cn(
         "fixed bottom-4 left-4 z-50 transition-all duration-300 ease-out",
         isOpen
@@ -190,7 +129,7 @@ export function PowerfulInput({}: PowerfulInputProps) {
                 <>
                   <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 animate-in slide-in-from-left-2 duration-200" />
                   <div className="animate-in slide-in-from-right-2 duration-300 min-w-0 flex-1">
-                    {renderCommandComponent(commandState.selectedCommand)}
+                    {renderCommandComponent(commandState.selectedCommand, handleCommandExecute, handleClose)}
                   </div>
                 </>
               ) : (
@@ -226,7 +165,7 @@ export function PowerfulInput({}: PowerfulInputProps) {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setIsOpen(true)}
+            onClick={openInput}
             className="bg-background/80 backdrop-blur-sm border-border shadow-sm"
           >
             <Search className="h-4 w-4 mr-2" />
@@ -273,3 +212,5 @@ export function PowerfulInput({}: PowerfulInputProps) {
     </>
   )
 }
+
+export default PowerfulInput

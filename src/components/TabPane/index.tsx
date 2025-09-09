@@ -1,9 +1,10 @@
-import React, { memo, useState, useEffect } from 'react'
+import React, { memo } from 'react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Kanban, List } from 'lucide-react'
+import { useTabPane, type ViewType } from './use-tab-pane'
 import type { ReactNode } from 'react'
 
-export type ViewType = 'board' | 'list'
+export type { ViewType }
 
 export interface TabPaneProps {
   /** Currently active view */
@@ -39,35 +40,15 @@ const TabPane = memo(({
   listLabel = "List",
   disabled = false
 }: TabPaneProps) => {
-  const [internalView, setInternalView] = useState<ViewType>(activeView)
-
-  // Load persisted view preference on mount
-  useEffect(() => {
-    if (persistView) {
-      const savedView = localStorage.getItem(storageKey) as ViewType
-      if (savedView && (savedView === 'board' || savedView === 'list')) {
-        setInternalView(savedView)
-        onViewChange(savedView)
-      }
-    }
-  }, [persistView, storageKey, onViewChange])
-
-  // Sync internal view with external activeView
-  useEffect(() => {
-    setInternalView(activeView)
-  }, [activeView])
-
-  const handleViewChange = (value: string) => {
-    const newView = value as ViewType
-    setInternalView(newView)
-
-    // Persist view preference
-    if (persistView) {
-      localStorage.setItem(storageKey, newView)
-    }
-
-    onViewChange(newView)
-  }
+  const {
+    internalView,
+    handleViewChange,
+  } = useTabPane({
+    activeView,
+    onViewChange,
+    persistView,
+    storageKey
+  })
 
   return (
     <Tabs
@@ -124,3 +105,4 @@ const TabPane = memo(({
 TabPane.displayName = 'TabPane'
 
 export { TabPane }
+export default TabPane
