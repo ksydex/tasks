@@ -46,7 +46,7 @@ interface TaskState {
   // Task operations
   addTask: (title: string, description?: string, tagIds?: string[], priority?: Priority | null, storyPoints?: number, dueDate?: Date, status?: string) => string
   deleteTask: (id: string) => void
-  editTask: (id: string, updates: Partial<Pick<Task, 'title' | 'description' | 'tagIds' | 'priority' | 'storyPoints' | 'dueDate' | 'isDone'>>) => void
+  editTask: (id: string, updates: Partial<Pick<Task, 'title' | 'description' | 'tagIds' | 'priority' | 'storyPoints' | 'dueDate' | 'isDone' | 'doneDate'>>) => void
   moveTask: (id: string, status: string) => void
   moveTaskToPosition: (taskId: string, sourceColumnId: string, destColumnId: string, sourceIndex: number, destIndex: number) => void
   reorderTasks: (sourceIndex: number, destIndex: number, status: string) => void

@@ -1,8 +1,9 @@
 import React from 'react'
-import { Plus, HelpCircle } from 'lucide-react'
+import { Plus, HelpCircle, CheckCircle2 } from 'lucide-react'
 import { BaseCommand, CommandContext } from './types'
 import { AddTaskCommand } from './AddTaskCommand'
 import { HelpCommand } from './HelpCommand'
+import { MassDoneCommand } from './MassDoneCommand'
 
 // Command registry - easily extensible
 export const createCommands = (context: CommandContext): BaseCommand[] => {
@@ -25,6 +26,13 @@ export const createCommands = (context: CommandContext): BaseCommand[] => {
           onExecute: wrappedOnExecute
         })
       }
+    },
+    {
+      key: 'mass-done',
+      name: 'Mass Done',
+      description: 'Mark all tasks in a selected column as done',
+      icon: CheckCircle2,
+      component: MassDoneCommand
     },
     {
       key: 'help',
