@@ -37,3 +37,11 @@ When adding a new feature like "Task Priority":
 - Document any new store actions in "Data Storage"
 - Add implementation notes to "Critical Notes"
 
+## Development Testing Rules
+
+### Project Build Testing
+- **Primary Testing Command**: Use `bun dev` to test project builds and development server
+- **Build Verification**: Always run `bun dev` after significant refactoring to ensure components work correctly
+- **Alternative Commands**: `npm run dev` can be used as fallback if bun is unavailable
+- **Testing Protocol**: Start dev server, verify no compilation errors, and check basic functionality before proceeding to next steps
+

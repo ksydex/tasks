@@ -1,42 +1,23 @@
-import { useState, useEffect } from 'react'
 import { PowerfulInput } from '@/components/PowerfulInput'
 import { TaskStats } from '@/components/TaskStats'
 import { SettingsDialog } from '@/components/SettingsDialog'
-import { TabPane, type ViewType } from '@/components/TabPane'
+import { TabPane } from '@/components/TabPane'
 import { BoardView } from '@/components/BoardView'
 import { ListView } from '@/components/ListView'
-import { useTaskStore, useTasksByStatus } from '@/store/todo-store'
 import { Button } from '@/components/ui/button'
 import { Moon, Sun, Kanban, Palette } from 'lucide-react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { useHomePage } from './use-home-page'
 
 function HomePage() {
-  const [isDark, setIsDark] = useState(false)
-  const [activeView, setActiveView] = useState<ViewType>('board')
-  const [searchParams, setSearchParams] = useSearchParams()
-  const { tasks } = useTaskStore()
-  const tasksByStatus = useTasksByStatus()
-
-  useEffect(() => {
-    const isDarkMode = document.documentElement.classList.contains('dark')
-    setIsDark(isDarkMode)
-  }, [])
-
-  const toggleTheme = () => {
-    document.documentElement.classList.toggle('dark')
-    setIsDark(!isDark)
-  }
-
-  const getGreeting = () => {
-    const hour = new Date().getHours()
-    if (hour < 12) return 'Good morning'
-    if (hour < 18) return 'Good afternoon'
-    return 'Good evening'
-  }
-
-  const handleViewChange = (view: ViewType) => {
-    setActiveView(view)
-  }
+  const {
+    isDark,
+    activeView,
+    tasks,
+    greeting,
+    toggleTheme,
+    handleViewChange,
+  } = useHomePage()
 
   return (
     <div className="min-h-screen bg-background">
@@ -49,7 +30,7 @@ function HomePage() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-foreground">Task Board</h1>
-                <p className="text-sm text-muted-foreground">{getGreeting()}! Organize your workflow efficiently.</p>
+                <p className="text-sm text-muted-foreground">{greeting}! Organize your workflow efficiently.</p>
               </div>
             </div>
 
