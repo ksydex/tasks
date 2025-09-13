@@ -54,28 +54,26 @@ const TabPane = memo(({
     <Tabs
       value={internalView}
       onValueChange={handleViewChange}
-      className={`w-full max-w-7xl mx-auto ${className}`}
+      className={`${className}`}
     >
-      <TabsList className="grid w-full grid-cols-2 mb-6" role="tablist" aria-label="Task view options">
+      <TabsList className="grid w-full grid-cols-2 h-8" role="tablist" aria-label="Task view options">
         <TabsTrigger
           value="board"
           disabled={disabled}
-          className="flex items-center gap-2"
+          className="flex items-center gap-1 text-xs h-6"
           aria-describedby="board-view-description"
         >
-          <Kanban className="w-4 h-4" aria-hidden="true" />
-          <span className="hidden sm:inline">{boardLabel}</span>
-          <span className="sm:hidden">{boardLabel}</span>
+          <Kanban className="w-3 h-3" aria-hidden="true" />
+          <span>{boardLabel}</span>
         </TabsTrigger>
         <TabsTrigger
           value="list"
           disabled={disabled}
-          className="flex items-center gap-2"
+          className="flex items-center gap-1 text-xs h-6"
           aria-describedby="list-view-description"
         >
-          <List className="w-4 h-4" aria-hidden="true" />
-          <span className="hidden sm:inline">{listLabel}</span>
-          <span className="sm:hidden">{listLabel}</span>
+          <List className="w-3 h-3" aria-hidden="true" />
+          <span>{listLabel}</span>
         </TabsTrigger>
       </TabsList>
 
@@ -88,13 +86,13 @@ const TabPane = memo(({
       </div>
 
       <TabsContent value="board" className="mt-0" role="tabpanel" aria-labelledby="board-tab">
-        <div className="transition-opacity duration-200 ease-in-out min-h-[400px]">
+        <div className="transition-opacity duration-200 ease-in-out">
           {boardContent}
         </div>
       </TabsContent>
 
       <TabsContent value="list" className="mt-0" role="tabpanel" aria-labelledby="list-tab">
-        <div className="transition-opacity duration-200 ease-in-out min-h-[400px]">
+        <div className="transition-opacity duration-200 ease-in-out">
           {listContent}
         </div>
       </TabsContent>

@@ -18,15 +18,17 @@ const BoardView = memo(({ className = "" }: BoardViewProps) => {
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className={`grid gap-6 ${gridLayoutClass} ${className}`}>
-        {columns.map((column) => (
-          <KanbanColumn
-            key={column.id}
-            column={column}
-            tasks={tasksByStatus[column.id] || []}
-            count={stats[column.id] || 0}
-          />
-        ))}
+      <div className={`h-full overflow-x-auto overflow-y-hidden ${className}`}>
+        <div className="flex gap-4 h-full p-4 min-w-max">
+          {columns.map((column) => (
+            <KanbanColumn
+              key={column.id}
+              column={column}
+              tasks={tasksByStatus[column.id] || []}
+              count={stats[column.id] || 0}
+            />
+          ))}
+        </div>
       </div>
     </DragDropContext>
   )

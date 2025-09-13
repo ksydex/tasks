@@ -13,26 +13,29 @@ interface KanbanColumnProps {
 
 const KanbanColumn = memo(({ column, tasks, count }: KanbanColumnProps) => {
   return (
-    <Card
-      className="flex flex-col h-full border-t-4"
-      style={{ borderTopColor: column.color }}
+    <div
+      className="flex flex-col w-72 h-full bg-muted/30 rounded-lg border border-border"
+      style={{ borderTopColor: column.color, borderTopWidth: '4px' }}
     >
-      <CardHeader className="mb-3">
-        <CardTitle className="flex items-center justify-between text-sm font-medium">
-          <div className="flex items-center gap-2 text-lg">
-            {column.icon && <span>{column.icon}</span>}
-            <span>{column.title}</span>
+      {/* List Header */}
+      <div className="p-3 border-b border-border">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {column.icon && <span className="text-lg">{column.icon}</span>}
+            <h3 className="font-semibold text-sm text-foreground">{column.title}</h3>
           </div>
           <ColumnBadge color={column.color} count={count} />
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex-1">
+        </div>
+      </div>
+
+      {/* Scrollable Cards Area */}
+      <div className="flex-1 overflow-y-auto p-3">
         <Droppable droppableId={column.id}>
           {(provided, snapshot) => (
             <div
               ref={provided.innerRef}
               {...provided.droppableProps}
-              className={`space-y-3 min-h-[200px] transition-colors ${
+              className={`space-y-3 min-h-full transition-colors ${
                 snapshot.isDraggingOver ? 'bg-muted/50 rounded-lg' : ''
               }`}
             >
@@ -49,8 +52,9 @@ const KanbanColumn = memo(({ column, tasks, count }: KanbanColumnProps) => {
             </div>
           )}
         </Droppable>
-      </CardContent>
-    </Card>
+      </div>
+
+    </div>
   )
 })
 
