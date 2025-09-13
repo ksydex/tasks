@@ -1,24 +1,43 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react'
-import { CheckCircle2, ChevronDown } from 'lucide-react'
+import React, { useState, useCallback } from 'react'
+import { CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Badge } from '@/components/ui/badge'
+import { SelectDropdown, type SelectDropdownItem } from '@/components/ui/select-dropdown'
 import { useTaskStore, useTasksByStatus } from '@/store/todo-store'
 import { CommandComponentProps } from './types'
 
+// Convert columns to SelectDropdownItem format
+function convertColumnsToItems(columns: any[], tasksByStatus: any): SelectDropdownItem[] {
+  return columns.map(column => {
+    const columnTasks = tasksByStatus[column.id] || []
+    const incompleteCount = columnTasks.filter((task: any) => !task.isDone).length
+
+    return {
+      id: column.id,
+      primary: column.title,
+      secondary: `${incompleteCount} incomplete task${incompleteCount !== 1 ? 's' : ''}`,
+      badge: incompleteCount,
+      data: column
+    }
+  })
+}
+
+// Render icon for columns (emoji strings)
+function renderColumnIcon(item: SelectDropdownItem, isSelected?: boolean) {
+  const column = item.data
+  if (!column?.icon) return null
+
+  // Handle emoji strings
+  if (typeof column.icon === 'string') {
+    return <span className="text-lg shrink-0">{column.icon}</span>
+  }
+
+  return null
+}
+
 export function MassDoneCommand({ onExecute, onClose }: CommandComponentProps) {
   const [selectedColumnId, setSelectedColumnId] = useState<string | null>(null)
-  const [isOpen, setIsOpen] = useState(false)
-  const triggerRef = useRef<HTMLButtonElement>(null)
   const { columns, editTask } = useTaskStore()
   const tasksByStatus = useTasksByStatus()
-
-  // Auto-focus on mount
-  useEffect(() => {
-    if (triggerRef.current) {
-      triggerRef.current.focus()
-    }
-  }, [])
 
   // Get columns that have incomplete tasks
   const availableColumns = columns.filter(column => {
@@ -32,8 +51,12 @@ export function MassDoneCommand({ onExecute, onClose }: CommandComponentProps) {
 
   const handleColumnSelect = useCallback((columnId: string) => {
     setSelectedColumnId(columnId)
-    setIsOpen(false)
   }, [])
+
+  // Handle column selection from SelectDropdown
+  const handleColumnChange = useCallback((columnId: string, item: SelectDropdownItem) => {
+    handleColumnSelect(columnId)
+  }, [handleColumnSelect])
 
   const handleMassComplete = useCallback(() => {
     if (!selectedColumnId) return
@@ -77,66 +100,24 @@ export function MassDoneCommand({ onExecute, onClose }: CommandComponentProps) {
     )
   }
 
+  // Convert available columns for SelectDropdown
+  const columnItems = convertColumnsToItems(availableColumns, tasksByStatus)
+
   return (
     <div className="flex gap-2 flex-1" onKeyDown={handleKeyDown}>
       {/* Column Selector */}
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            ref={triggerRef}
-            variant="outline"
-            className="h-9 justify-between min-w-[200px]"
-          >
-            <div className="flex items-center gap-2">
-              {selectedColumn ? (
-                <>
-                  <span>{selectedColumn.icon}</span>
-                  <span>{selectedColumn.title}</span>
-                  <Badge variant="secondary" className="text-xs">
-                    {incompleteTasksCount}
-                  </Badge>
-                </>
-              ) : (
-                <span>Select column...</span>
-              )}
-            </div>
-            <ChevronDown className="h-4 w-4 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[300px] p-0" align="start">
-          <div className="p-2">
-            <div className="text-xs font-medium text-muted-foreground px-2 py-1">
-              Columns with incomplete tasks:
-            </div>
-            {availableColumns.map(column => {
-              const columnTasks = tasksByStatus[column.id] || []
-              const incompleteCount = columnTasks.filter(task => !task.isDone).length
-
-              return (
-                <Button
-                  key={column.id}
-                  variant="ghost"
-                  className="w-full justify-start h-auto p-2"
-                  onClick={() => handleColumnSelect(column.id)}
-                >
-                  <div className="flex items-center gap-3 w-full">
-                    <span className="text-lg">{column.icon}</span>
-                    <div className="flex-1 text-left">
-                      <div className="font-medium text-sm">{column.title}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {incompleteCount} incomplete task{incompleteCount !== 1 ? 's' : ''}
-                      </div>
-                    </div>
-                    <Badge variant="secondary" className="text-xs">
-                      {incompleteCount}
-                    </Badge>
-                  </div>
-                </Button>
-              )
-            })}
-          </div>
-        </PopoverContent>
-      </Popover>
+      <SelectDropdown
+        items={columnItems}
+        value={selectedColumnId || undefined}
+        onValueChange={handleColumnChange}
+        placeholder="Select column..."
+        triggerWidth="min-w-[200px]"
+        contentWidth="w-[300px]"
+        searchable={false}
+        headerText="Columns with incomplete tasks:"
+        className="h-9 justify-between"
+        renderIcon={renderColumnIcon}
+      />
 
       {/* Action Buttons */}
       <Button

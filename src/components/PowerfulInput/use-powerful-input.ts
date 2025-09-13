@@ -11,7 +11,6 @@ interface CommandState {
 export function usePowerfulInput() {
   // UI state
   const [isOpen, setIsOpen] = useState(false)
-  const [commandPopoverOpen, setCommandPopoverOpen] = useState(false)
   const [commandsModalOpen, setCommandsModalOpen] = useState(false)
   const [commandState, setCommandState] = useState<CommandState>({
     selectedCommand: null
@@ -31,7 +30,6 @@ export function usePowerfulInput() {
   // Close handler
   const handleClose = useCallback(() => {
     setIsOpen(false)
-    setCommandPopoverOpen(false)
     setCommandState({ selectedCommand: null })
   }, [])
 
@@ -47,7 +45,6 @@ export function usePowerfulInput() {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault()
         setIsOpen(true)
-        setCommandPopoverOpen(true)
         // Reset state when opening
         setCommandState({
           selectedCommand: null
@@ -68,7 +65,6 @@ export function usePowerfulInput() {
     setCommandState({
       selectedCommand: command
     })
-    setCommandPopoverOpen(false)
   }, [])
 
   // Command execution handler
@@ -86,13 +82,11 @@ export function usePowerfulInput() {
   return {
     // State
     isOpen,
-    commandPopoverOpen,
     commandsModalOpen,
     commandState,
     commands,
 
     // State setters
-    setCommandPopoverOpen,
     setCommandsModalOpen,
 
     // Handlers

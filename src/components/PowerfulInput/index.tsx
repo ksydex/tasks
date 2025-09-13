@@ -1,16 +1,46 @@
+import React from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { SelectDropdown, type SelectDropdownItem } from '@/components/ui/select-dropdown'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Search, ChevronDown, ArrowRight, Check } from 'lucide-react'
+import { Search, ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { usePowerfulInput } from './use-powerful-input'
 import type { BaseCommand } from '@/commands'
 
 interface PowerfulInputProps {
   // No props needed anymore - we'll use URL navigation
+}
+
+// Convert commands to SelectDropdownItem format
+function convertCommandsToItems(commands: BaseCommand[]): SelectDropdownItem[] {
+  return commands.map(command => ({
+    id: command.key,
+    primary: command.name,
+    secondary: command.description,
+    data: command
+  }))
+}
+
+// Render icon for commands (Lucide React components)
+function renderCommandIcon(item: SelectDropdownItem, isSelected?: boolean) {
+  const command = item.data as BaseCommand
+  const icon = command?.icon
+  if (!icon) return null
+
+  // Handle React component objects (Lucide icons)
+  if (typeof icon === 'object' && icon && '$$typeof' in icon) {
+    return React.createElement(icon as any, { className: "h-4 w-4 shrink-0" })
+  }
+
+  // Handle function constructors
+  if (typeof icon === 'function') {
+    const IconComponent = icon as React.ComponentType<{ className?: string }>
+    return <IconComponent className="h-4 w-4 shrink-0" />
+  }
+
+  return null
 }
 
 // Render command component helper
@@ -27,11 +57,9 @@ function renderCommandComponent(command: BaseCommand, onExecute: (action: string
 export function PowerfulInput({}: PowerfulInputProps) {
   const {
     isOpen,
-    commandPopoverOpen,
     commandsModalOpen,
     commandState,
     commands,
-    setCommandPopoverOpen,
     setCommandsModalOpen,
     handleCommandSelect,
     handleCommandExecute,
@@ -41,6 +69,17 @@ export function PowerfulInput({}: PowerfulInputProps) {
     openCommandsModal,
     closeCommandsModal,
   } = usePowerfulInput()
+
+  // Convert commands for SelectDropdown
+  const commandItems = convertCommandsToItems(commands)
+
+  // Commands converted successfully
+
+  // Handle command selection from SelectDropdown
+  const handleCommandChange = (commandKey: string, item: SelectDropdownItem) => {
+    const command = item.data as BaseCommand
+    handleCommandSelect(command)
+  }
 
   return (
     <>
@@ -66,61 +105,18 @@ export function PowerfulInput({}: PowerfulInputProps) {
 
             {/* Command Selection Part */}
             <div className="w-[200px] shrink-0">
-              <Popover open={commandPopoverOpen} onOpenChange={setCommandPopoverOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={commandPopoverOpen}
-                    className="w-full justify-between h-9 font-normal pr-2"
-                  >
-                  {commandState.selectedCommand ? (
-                    <div className="flex items-center gap-2">
-                      <commandState.selectedCommand.icon className="h-4 w-4" />
-                      <span className="truncate">{commandState.selectedCommand.name}</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <Search className="h-4 w-4" />
-                      <span>Choose command...</span>
-                    </div>
-                  )}
-                  <ChevronDown className="mh-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0 bg-background border-border" align="start">
-                <Command>
-                  <CommandInput placeholder="Search commands..." className="h-9" />
-                  <CommandEmpty>No command found.</CommandEmpty>
-                  <CommandList>
-                    <CommandGroup>
-                      {commands.map((command) => (
-                        <CommandItem
-                          key={command.key}
-                          value={command.key}
-                          onSelect={() => handleCommandSelect(command)}
-                          className="flex items-center gap-2"
-                        >
-                          <command.icon className="h-4 w-4" />
-                          <div className="flex flex-col">
-                            <span className="font-medium">{command.name}</span>
-                            <span className="text-xs data-[selected=true]:text-white/90">
-                              {command.description}
-                            </span>
-                          </div>
-                          <Check
-                            className={cn(
-                              "ml-auto h-4 w-4",
-                              commandState.selectedCommand?.key === command.key ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-              </Popover>
+              <SelectDropdown
+                items={commandItems}
+                value={commandState.selectedCommand?.key}
+                onValueChange={handleCommandChange}
+                placeholder="Choose command..."
+                triggerWidth="w-full"
+                contentWidth="w-[200px]"
+                searchable={true}
+                showSelectedIcon={true}
+                className="h-9 font-normal pr-2"
+                renderIcon={renderCommandIcon}
+              />
             </div>
 
             {/* Command Component - Always Present */}
