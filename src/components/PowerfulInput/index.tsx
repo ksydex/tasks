@@ -19,29 +19,11 @@ function convertCommandsToItems(commands: BaseCommand[]): SelectDropdownItem[] {
     id: command.key,
     primary: command.name,
     secondary: command.description,
-    data: command
+    icon: command.icon
   }))
 }
 
-// Render icon for commands (Lucide React components)
-function renderCommandIcon(item: SelectDropdownItem, isSelected?: boolean) {
-  const command = item.data as BaseCommand
-  const icon = command?.icon
-  if (!icon) return null
-
-  // Handle React component objects (Lucide icons)
-  if (typeof icon === 'object' && icon && '$$typeof' in icon) {
-    return React.createElement(icon as any, { className: "h-4 w-4 shrink-0" })
-  }
-
-  // Handle function constructors
-  if (typeof icon === 'function') {
-    const IconComponent = icon as React.ComponentType<{ className?: string }>
-    return <IconComponent className="h-4 w-4 shrink-0" />
-  }
-
-  return null
-}
+// No need for custom icon renderer - using built-in SelectDropdown.Icon
 
 // Render command component helper
 function renderCommandComponent(command: BaseCommand, onExecute: (action: string, data?: any) => void, onClose: () => void) {
@@ -77,8 +59,10 @@ export function PowerfulInput({}: PowerfulInputProps) {
 
   // Handle command selection from SelectDropdown
   const handleCommandChange = (commandKey: string, item: SelectDropdownItem) => {
-    const command = item.data as BaseCommand
-    handleCommandSelect(command)
+    const command = commands.find(cmd => cmd.key === commandKey)
+    if (command) {
+      handleCommandSelect(command)
+    }
   }
 
   return (
@@ -115,7 +99,7 @@ export function PowerfulInput({}: PowerfulInputProps) {
                 searchable={true}
                 showSelectedIcon={true}
                 className="h-9 font-normal pr-2"
-                renderIcon={renderCommandIcon}
+                renderIcon={SelectDropdown.Icon}
               />
             </div>
 

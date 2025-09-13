@@ -11,8 +11,11 @@ export interface SelectDropdownItem {
   primary: string // main text (name/title)
   secondary?: string // description
   badge?: string | number // count or other indicator
-  data?: any // additional data
+  icon?: React.ComponentType<{ className?: string }> | string // icon component or emoji string
 }
+
+// Built-in icon renderer types
+export type SelectDropdownIconRenderer = (item: SelectDropdownItem, isSelected?: boolean) => React.ReactNode
 
 export interface SelectDropdownProps {
   items: SelectDropdownItem[]
@@ -26,7 +29,7 @@ export interface SelectDropdownProps {
   disabled?: boolean
   className?: string // additional classes for trigger
   showSelectedIcon?: boolean // show check icon for selected item
-  renderIcon?: (item: SelectDropdownItem, isSelected?: boolean) => React.ReactNode // render prop for icons
+  renderIcon?: SelectDropdownIconRenderer // render prop for icons
 }
 
 export function SelectDropdown({
@@ -134,3 +137,39 @@ export function SelectDropdown({
     </Popover>
   )
 }
+
+// Built-in icon renderer for React components (Lucide icons, etc.)
+const IconRenderer: SelectDropdownIconRenderer = (item, isSelected) => {
+  const icon = item.icon
+  if (!icon) return null
+
+  // Handle React component objects (Lucide icons)
+  if (typeof icon === 'object' && icon && '$$typeof' in icon) {
+    return React.createElement(icon as any, { className: "h-4 w-4 shrink-0" })
+  }
+
+  // Handle function constructors
+  if (typeof icon === 'function') {
+    const IconComponent = icon as React.ComponentType<{ className?: string }>
+    return <IconComponent className="h-4 w-4 shrink-0" />
+  }
+
+  return null
+}
+
+// Built-in icon renderer for emoji strings
+const EmojiRenderer: SelectDropdownIconRenderer = (item, isSelected) => {
+  const icon = item.icon
+  if (!icon) return null
+
+  // Handle emoji strings
+  if (typeof icon === 'string') {
+    return <span className="text-lg shrink-0">{icon}</span>
+  }
+
+  return null
+}
+
+// Attach built-in renderers to the component
+SelectDropdown.Icon = IconRenderer
+SelectDropdown.Emoji = EmojiRenderer

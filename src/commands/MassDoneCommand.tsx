@@ -16,23 +16,12 @@ function convertColumnsToItems(columns: any[], tasksByStatus: any): SelectDropdo
       primary: column.title,
       secondary: `${incompleteCount} incomplete task${incompleteCount !== 1 ? 's' : ''}`,
       badge: incompleteCount,
-      data: column
+      icon: column.icon
     }
   })
 }
 
-// Render icon for columns (emoji strings)
-function renderColumnIcon(item: SelectDropdownItem, isSelected?: boolean) {
-  const column = item.data
-  if (!column?.icon) return null
-
-  // Handle emoji strings
-  if (typeof column.icon === 'string') {
-    return <span className="text-lg shrink-0">{column.icon}</span>
-  }
-
-  return null
-}
+// No need for custom icon renderer - using built-in SelectDropdown.Emoji
 
 export function MassDoneCommand({ onExecute, onClose }: CommandComponentProps) {
   const [selectedColumnId, setSelectedColumnId] = useState<string | null>(null)
@@ -116,7 +105,7 @@ export function MassDoneCommand({ onExecute, onClose }: CommandComponentProps) {
         searchable={false}
         headerText="Columns with incomplete tasks:"
         className="h-9 justify-between"
-        renderIcon={renderColumnIcon}
+        renderIcon={SelectDropdown.Emoji}
       />
 
       {/* Action Buttons */}
