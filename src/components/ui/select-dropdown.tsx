@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { ChevronDown, Check } from 'lucide-react'
+import { ChevronDown, Check, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export interface SelectDropdownItem {
@@ -30,6 +30,11 @@ export interface SelectDropdownProps {
   className?: string // additional classes for trigger
   showSelectedIcon?: boolean // show check icon for selected item
   renderIcon?: SelectDropdownIconRenderer // render prop for icons
+  showReset?: boolean // show reset button
+  onReset?: () => void // reset handler
+  portal?: boolean // render in portal
+  scrollable?: boolean // enable scroll for long lists
+  maxHeight?: string // max height for scrollable content
 }
 
 export function SelectDropdown({
@@ -44,7 +49,12 @@ export function SelectDropdown({
   disabled = false,
   className,
   showSelectedIcon = false,
-  renderIcon
+  renderIcon,
+  showReset = false,
+  onReset,
+  portal = true,
+  scrollable = true,
+  maxHeight = "max-h-[300px]"
 }: SelectDropdownProps) {
   const [open, setOpen] = useState(false)
 
@@ -73,26 +83,45 @@ export function SelectDropdown({
     <span>{placeholder}</span>
   )
 
+  const handleReset = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onReset?.()
+  }
+
   // Unified implementation using Command component
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className={cn(triggerWidth, "justify-between h-9 font-normal pr-2", className)}
-          disabled={disabled}
-        >
-          {triggerContent}
-          <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
-        </Button>
+        <div className="relative">
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className={cn(triggerWidth, "justify-between h-9 font-normal pr-2", className)}
+            disabled={disabled}
+          >
+            {triggerContent}
+            <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+
+          {showReset && value && (
+            <button
+              type="button"
+              onMouseDown={handleReset}
+              onClick={handleReset}
+              className="absolute right-8 top-1/2 -translate-y-1/2 p-0.5 rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors z-10"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
       </PopoverTrigger>
       <PopoverContent className={cn(contentWidth, "p-0 bg-background border-border")} align="start">
         <Command>
           {searchable && <CommandInput placeholder="Search..." className="h-9" />}
           <CommandEmpty>No option found.</CommandEmpty>
-          <CommandList>
+          <CommandList className={cn(scrollable && maxHeight, "overflow-y-auto")}>
             <CommandGroup>
               {headerText && !searchable && (
                 <div className="text-xs font-medium text-muted-foreground px-3 py-2 border-b">

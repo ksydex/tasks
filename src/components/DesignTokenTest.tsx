@@ -47,7 +47,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 // Advanced Components
 import { MultiSelect } from '@/components/ui/multi-select'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { SelectDropdown, type SelectDropdownItem } from '@/components/ui/select-dropdown'
 import { Calendar } from '@/components/ui/calendar'
 
 // Internal components for DesignTokenTest page
@@ -90,6 +90,14 @@ const SuccessCard = ({ title, description, children }: { title: string; descript
  */
 export function DesignTokenTest() {
   const [isDark, setIsDark] = useState(false)
+
+  // Demo items for SelectDropdown
+  const demoItems: SelectDropdownItem[] = [
+    { id: "design-system", primary: "Design System" },
+    { id: "user-testing", primary: "User Testing" },
+    { id: "documentation", primary: "Documentation" },
+    { id: "bug-fixes", primary: "Bug Fixes" }
+  ]
 
   useEffect(() => {
     // Check if dark mode is already enabled
@@ -317,12 +325,12 @@ export function DesignTokenTest() {
           <div>
             <Text variant="h4" className="mb-2">Due Status Component</Text>
             <div className="space-y-2">
-              <Text variant="small" className="mb-2">Combined due date and priority display:</Text>
+              <Text variant="small" className="mb-2">Due date status display:</Text>
               <div className="flex gap-2 flex-wrap">
-                <DueStatus dueDate={new Date(Date.now() - 86400000)} priority="high" showPriority />
-                <DueStatus dueDate={new Date()} priority="medium" showPriority />
-                <DueStatus dueDate={new Date(Date.now() + 86400000)} priority="low" showPriority />
-                <DueStatus dueDate={new Date(Date.now() + 259200000)} priority="urgent" showPriority />
+                <DueStatus dueDate={new Date(Date.now() - 86400000)} />
+                <DueStatus dueDate={new Date()} />
+                <DueStatus dueDate={new Date(Date.now() + 86400000)} />
+                <DueStatus dueDate={new Date(Date.now() + 259200000)} />
               </div>
 
               <Text variant="small" className="mb-2 mt-4">Relative time examples (hover for actual date):</Text>
@@ -983,17 +991,15 @@ export function DesignTokenTest() {
             <div>
             <Text variant="h4" className="mb-2">Select</Text>
             <div className="max-w-sm">
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a task" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="design-system">Design System</SelectItem>
-                  <SelectItem value="user-testing">User Testing</SelectItem>
-                  <SelectItem value="documentation">Documentation</SelectItem>
-                  <SelectItem value="bug-fixes">Bug Fixes</SelectItem>
-                </SelectContent>
-              </Select>
+              <SelectDropdown
+                items={demoItems}
+                value={undefined}
+                onValueChange={() => {}}
+                placeholder="Select a task"
+                triggerWidth="w-full"
+                contentWidth="w-[200px]"
+                searchable={false}
+              />
             </div>
             </div>
 

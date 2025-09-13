@@ -1,5 +1,5 @@
 import React from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SelectDropdown, type SelectDropdownItem } from '@/components/ui/select-dropdown';
 import { Flag } from 'lucide-react';
 import { FormFieldWrapper } from './form-field';
 import type { Priority } from '@/lib/status-colors';
@@ -44,9 +44,43 @@ export function PrioritySelector({
   /**
    * Обрабатывает изменение значения приоритета.
    */
-  const handleValueChange = (newValue: string) => {
-    const priority = newValue === '' ? null : newValue as Priority;
+  const handleValueChange = (newValue: string, item: SelectDropdownItem) => {
+    const priority = newValue as Priority;
     onChange(priority);
+  };
+
+  /**
+   * Обрабатывает сброс значения приоритета.
+   */
+  const handleReset = () => {
+    onChange(null);
+  };
+
+  /**
+   * Конвертирует приоритеты в формат SelectDropdownItem.
+   */
+  const priorityItems: SelectDropdownItem[] = priorities.map(priority => ({
+    id: priority.id,
+    primary: priority.name,
+    icon: Flag
+  }));
+
+  /**
+   * Кастомный рендерер иконок для приоритетов.
+   */
+  const renderPriorityIcon = (item: SelectDropdownItem) => {
+    const priority = priorities.find(p => p.id === item.id);
+    if (!priority) return null;
+
+    return (
+      <div className="flex items-center gap-2">
+        {priority.icon && <span>{priority.icon}</span>}
+        <div
+          className="w-2 h-2 rounded-full"
+          style={{ backgroundColor: priority.color }}
+        />
+      </div>
+    );
   };
 
   /**
@@ -72,36 +106,18 @@ export function PrioritySelector({
       className={className}
       required={required}
     >
-      <Select value={value || ''} onValueChange={handleValueChange}>
-        <SelectTrigger
-          showReset={true}
-          onReset={() => onChange(null)}
-          value={value}
-          placeholder="Выберите приоритет..."
-        >
-          <SelectValue placeholder="Выберите приоритет...">
-            <div className="flex items-center gap-2">
-              <Flag className="h-4 w-4" />
-              {getDisplayName(value)}
-            </div>
-          </SelectValue>
-        </SelectTrigger>
-
-        <SelectContent>
-          {priorities.map((priorityLevel) => (
-            <SelectItem key={priorityLevel.id} value={priorityLevel.id}>
-              <div className="flex items-center gap-2">
-                {priorityLevel.icon && <span>{priorityLevel.icon}</span>}
-                <div
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: priorityLevel.color }}
-                />
-                {priorityLevel.name}
-              </div>
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <SelectDropdown
+        items={priorityItems}
+        value={value || undefined}
+        onValueChange={handleValueChange}
+        placeholder="Выберите приоритет..."
+        showReset={!required}
+        onReset={handleReset}
+        renderIcon={renderPriorityIcon}
+        triggerWidth="w-full"
+        contentWidth="w-[200px]"
+        searchable={false}
+      />
     </FormFieldWrapper>
   );
 }

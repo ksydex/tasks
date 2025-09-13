@@ -6,7 +6,7 @@ import {
   DialogTrigger,
   DialogClose,
 } from '@/components/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { SelectDropdown, type SelectDropdownItem } from '@/components/ui/select-dropdown'
 import { X } from 'lucide-react'
 import { useTaskForm } from './use-task-form'
 import { TaskInfoPanel } from './TaskInfoPanel'
@@ -53,6 +53,12 @@ export function DetailedTaskForm({ task: taskProp, taskId, trigger, open: extern
   const columns = useTaskStore((s) => s.columns)
   const moveTask = useTaskStore((s) => s.moveTask)
 
+  // Convert columns to SelectDropdownItem format
+  const columnItems: SelectDropdownItem[] = columns.map(column => ({
+    id: column.id,
+    primary: column.title,
+    icon: column.icon
+  }))
 
   /**
    * Обрабатывает закрытие формы.
@@ -88,7 +94,8 @@ export function DetailedTaskForm({ task: taskProp, taskId, trigger, open: extern
               size="md"
               className="mr-1"
             />
-            <Select
+            <SelectDropdown
+              items={columnItems}
               value={formState.status}
               onValueChange={(value) => {
                 if (isEditing && task) {
@@ -96,19 +103,12 @@ export function DetailedTaskForm({ task: taskProp, taskId, trigger, open: extern
                 }
                 updateField('status', value)
               }}
-            >
-              <SelectTrigger className="w-[220px]">
-                <SelectValue placeholder="Select column" />
-              </SelectTrigger>
-              <SelectContent>
-                {columns.map((col) => (
-                  <SelectItem key={col.id} value={col.id}>
-                    <span className="mr-2">{col.icon}</span>
-                    {col.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              placeholder="Select column"
+              triggerWidth="w-[220px]"
+              contentWidth="w-[220px]"
+              searchable={false}
+              renderIcon={SelectDropdown.Emoji}
+            />
           </div>
           <div className="flex items-center">
             {isEditing && task && (
