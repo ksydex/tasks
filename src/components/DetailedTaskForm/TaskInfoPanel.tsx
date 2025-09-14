@@ -48,7 +48,7 @@ export function TaskInfoPanel({
   updateField,
 }: TaskInfoPanelProps) {
   return (
-    <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-gray-400 dark:[&::-webkit-scrollbar-thumb]:bg-gray-600 dark:[&::-webkit-scrollbar-thumb:hover]:bg-gray-500">
+    <div className="flex-1 overflow-y-auto scrollbar-thin">
       <div className="p-4">
         <div className="space-y-6">
           <FormFieldWrapper

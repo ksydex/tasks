@@ -74,6 +74,13 @@ export const designTokens = {
       'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
       border: 'hsl(var(--sidebar-border))',
       ring: 'hsl(var(--sidebar-ring))'
+    },
+
+    // Scrollbar specific
+    scrollbar: {
+      thumb: 'hsl(var(--scrollbar-thumb))',
+      'thumb-hover': 'hsl(var(--scrollbar-thumb-hover))',
+      track: 'hsl(var(--scrollbar-track))'
     }
   },
 

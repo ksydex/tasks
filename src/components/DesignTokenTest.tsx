@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useTheme } from '../hooks/use-theme'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -89,7 +90,7 @@ const SuccessCard = ({ title, description, children }: { title: string; descript
  * by showing various UI components using the token system
  */
 export function DesignTokenTest() {
-  const [isDark, setIsDark] = useState(false)
+  const { isDark, toggleTheme } = useTheme()
 
   // Demo items for SelectDropdown
   const demoItems: SelectDropdownItem[] = [
@@ -98,23 +99,6 @@ export function DesignTokenTest() {
     { id: "documentation", primary: "Documentation" },
     { id: "bug-fixes", primary: "Bug Fixes" }
   ]
-
-  useEffect(() => {
-    // Check if dark mode is already enabled
-    const isDarkMode = document.documentElement.classList.contains('dark')
-    setIsDark(isDarkMode)
-  }, [])
-
-  const toggleTheme = () => {
-    const newTheme = !isDark
-    setIsDark(newTheme)
-
-    if (newTheme) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  }
 
   return (
     <div className="min-h-screen bg-background">

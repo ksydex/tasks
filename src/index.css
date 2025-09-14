@@ -75,8 +75,15 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.75rem
-  ;
+    --radius: 0.75rem;
+
+    /* Scrollbar theme variables */
+    --scrollbar-thumb: 220 13% 70%;
+    --scrollbar-thumb-hover: 220 13% 60%;
+    --scrollbar-track: 220 13% 95%;
+    --scrollbar-width: 8px;
+    --scrollbar-width-thin: 6px;
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -84,7 +91,8 @@
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 0 84% 60%}
+    --sidebar-ring: 0 84% 60%;
+  }
   .dark {
     --background: 210 12% 13%;
     --foreground: 0 0% 98%;
@@ -109,8 +117,15 @@
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%
-  ;
+    --chart-5: 340 75% 55%;
+
+    /* Dark theme scrollbar variables */
+    --scrollbar-thumb: 215 10% 45%;
+    --scrollbar-thumb-hover: 215 10% 55%;
+    --scrollbar-track: 215 10% 15%;
+    --scrollbar-width: 8px;
+    --scrollbar-width-thin: 6px;
+
     --sidebar-background: 210 12% 13%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -118,7 +133,8 @@
     --sidebar-accent: 215 10% 20%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 215 10% 22%;
-    --sidebar-ring: 0 84% 60%}
+    --sidebar-ring: 0 84% 60%;
+  }
 }
 @layer base {
   * {
@@ -126,5 +142,95 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* =====================================
+ *         GLOBAL SCROLLBAR STYLING
+ * =====================================
+ *
+ * Provides consistent scrollbar styling across all browsers
+ * with theme-aware colors and accessibility considerations
+ */
+
+@layer base {
+  /* Standard scrollbar properties for Firefox and modern browsers */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--scrollbar-thumb)) hsl(var(--scrollbar-track));
+  }
+
+  /* WebKit scrollbar styling for Chrome, Safari, Edge */
+  @supports selector(::-webkit-scrollbar) {
+    *::-webkit-scrollbar {
+      width: var(--scrollbar-width);
+      height: var(--scrollbar-width);
+    }
+
+    *::-webkit-scrollbar-track {
+      background: hsl(var(--scrollbar-track));
+      border-radius: calc(var(--scrollbar-width) / 2);
+    }
+
+    *::-webkit-scrollbar-thumb {
+      background: hsl(var(--scrollbar-thumb));
+      border-radius: calc(var(--scrollbar-width) / 2);
+      border: 1px solid transparent;
+      background-clip: content-box;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+      background: hsl(var(--scrollbar-thumb-hover));
+      background-clip: content-box;
+    }
+
+    *::-webkit-scrollbar-thumb:active {
+      background: hsl(var(--scrollbar-thumb-hover));
+      background-clip: content-box;
+    }
+
+    *::-webkit-scrollbar-corner {
+      background: hsl(var(--scrollbar-track));
+    }
+  }
+
+  /* Thin scrollbar variant for compact areas */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--scrollbar-thumb)) hsl(var(--scrollbar-track));
+  }
+
+  @supports selector(::-webkit-scrollbar) {
+    .scrollbar-thin::-webkit-scrollbar {
+      width: var(--scrollbar-width-thin);
+      height: var(--scrollbar-width-thin);
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-track {
+      background: hsl(var(--scrollbar-track));
+      border-radius: calc(var(--scrollbar-width-thin) / 2);
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+      background: hsl(var(--scrollbar-thumb));
+      border-radius: calc(var(--scrollbar-width-thin) / 2);
+      border: 1px solid transparent;
+      background-clip: content-box;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+      background: hsl(var(--scrollbar-thumb-hover));
+      background-clip: content-box;
+    }
+  }
+
+  /* Hide scrollbar while maintaining functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;     /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;             /* Safari and Chrome */
   }
 }
